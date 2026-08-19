@@ -1,0 +1,29 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+
+# Fuzzing / invariantes (se usan en las Clases 6 y 7)
+[fuzz]
+runs = 256
+
+[invariant]
+runs = 256
+depth = 50
+
+# SMTChecker — el verificador formal que ya trae solc (Clase 6).
+# Descomentar para verlo en accion. Dos cosas a tener en cuenta:
+#   - agrega ~20 s a cada `forge build`; por eso viene comentado
+#   - forge cachea: si no cambio ningun .sol hay que forzar con `forge build --force`
+# Los `show_*` son necesarios: sin ellos solc dice "4 unsupported language
+# feature(s)" pero no dice cuales, y esa es justo la explicacion del falso positivo.
+#
+# [profile.default.model_checker]
+# contracts        = { "src/Vault.sol" = ["Vault"] }
+# engine           = "chc"                          # chc (no acotado) o bmc (acotado)
+# targets          = ["assert", "overflow", "underflow", "divByZero"]
+# timeout          = 20000                          # ms por consulta
+# show_unsupported = true                           # que features del lenguaje NO modela
+# show_unproved    = true                           # que condiciones no pudo probar
+# show_proved_safe = true                           # que condiciones si demostro

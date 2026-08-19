@@ -1,0 +1,13 @@
+{
+  "name": "curso-sc-offchain",
+  "private": true,
+  "type": "module",
+  "description": "Bonus opcional: los tests del Vault escritos desde el off-chain (Hardhat + ethers + chai).",
+  "scripts": {
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "hardhat": "^3.12.0",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.7"
+  }
+}

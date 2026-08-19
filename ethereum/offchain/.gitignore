@@ -1,0 +1,11 @@
+node_modules/
+cache/
+artifacts/
+types/
+
+# Hardhat 3 escribe estos DENTRO del directorio de sources (contracts/).
+# Antes contracts/ era un symlink a ../src y le ensuciaba el proyecto Foundry.
+contracts/.workspaces/
+contracts/.deps/
+contracts/.states/
+contracts/artifacts/

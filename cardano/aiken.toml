@@ -1,0 +1,16 @@
+name = "curso/cardano"
+version = "0.0.0"
+compiler = "v1.1.21"
+plutus = "v3"
+license = "Apache-2.0"
+description = "Validators del curso de smart contracts (track Cardano)"
+
+[repository]
+user = "tu-usuario"
+project = "curso-smartcontracts"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "main"
+source = "github"

@@ -1,0 +1,32 @@
+# Contexto de build para Podman/Docker.
+# OJO: NO excluir ethereum/lib/ — ahí vive forge-std (submódulo) que forge necesita.
+
+.git
+.gitmodules
+
+# Artefactos regenerables (la imagen los reconstruye en el build)
+ethereum/out/
+ethereum/cache/
+ethereum/broadcast/
+cardano/build/
+cardano/artifacts/
+
+# Exportaciones de slides (pesadas y regenerables con marp)
+docs/slides/**/*.pptx
+docs/slides/**/*.pdf
+docs/slides/**/*.html
+
+# Node / entorno
+**/node_modules/
+.env
+.env.*
+
+# Editores / SO
+.DS_Store
+.vscode/
+.idea/
+
+# El propio contenedor
+Containerfile
+.containerignore
+.dockerignore

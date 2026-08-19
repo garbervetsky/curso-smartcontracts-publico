@@ -1,0 +1,43 @@
+/* @theme curso */
+/* Tema compartido del curso. Se aplica con: marp --theme docs/slides/theme.css
+   o referenciando `theme: curso` tras registrarlo. Hereda de default. */
+
+@import 'default';
+
+:root {
+  --eth: #2563eb;
+  --eth-bg: #dbeafe;
+  --ada: #16a34a;
+  --ada-bg: #dcfce7;
+  --warn: #dc2626;
+  --warn-bg: #fee2e2;
+  --ink: #334155;
+}
+
+section {
+  font-size: 26px;
+  padding: 50px 60px;
+}
+
+section h1 { color: #0f172a; }
+section h2 { color: #1e293b; }
+
+/* Slides de sección / portada */
+section.lead h1 { font-size: 56px; }
+section.lead h2 { font-size: 38px; color: #475569; }
+section.lead { justify-content: center; text-align: center; }
+
+/* Tablas más legibles al proyectar */
+section table { font-size: 22px; }
+section th { background: #f1f5f9; }
+
+/* Figuras centradas */
+section svg { display: block; margin: 0.4em auto; }
+
+/* Cajita de "idea clave" */
+.key {
+  background: #fef9c3;
+  border-left: 6px solid #ca8a04;
+  padding: 0.4em 0.8em;
+  border-radius: 4px;
+}

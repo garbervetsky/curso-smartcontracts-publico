@@ -1,0 +1,27 @@
+# Foundry (Ethereum)
+ethereum/out/
+ethereum/cache/
+ethereum/broadcast/
+
+# Aiken (Cardano)
+cardano/build/
+cardano/artifacts/
+
+# Node / off-chain
+node_modules/
+.env
+.env.*
+
+# Imágenes de contenedor exportadas (ver docs/entorno-contenedor.md)
+*.tar
+*.tar.gz
+
+# Editores / SO
+.DS_Store
+.vscode/
+.idea/
+
+# Exportaciones de slides (artefactos generables con scripts/slides-export.sh)
+docs/slides/**/*.pptx
+docs/slides/**/*.pdf
+docs/slides/**/*.html

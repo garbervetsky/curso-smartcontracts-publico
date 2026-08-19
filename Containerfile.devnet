@@ -1,0 +1,32 @@
+# Containerfile.devnet — devnet local de Cardano (Yaci DevKit) para la Clase 4.
+#
+# Se construye solo desde scripts/devnet.sh; no hace falta invocarlo a mano.
+#
+# Por qué un contenedor y no un install en la máquina: el paquete npm de Yaci
+# sólo publica binarios para linux-x64 y macos-arm64. En una Mac **Intel** no
+# corre (falla con EBADARCH), que es justo la máquina donde se prepara el curso.
+# Adentro de un contenedor linux/amd64 anda en las tres: Mac Intel y labs de
+# forma nativa, Apple Silicon por emulación.
+#
+# El cardano-node se descarga en el primer arranque y queda en /root/.yaci-cli,
+# que scripts/devnet.sh monta como volumen para no volver a bajarlo.
+
+FROM docker.io/library/node:20-bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Yaci corre el cardano-node y necesita estas para hablar con él.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl procps \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG YACI_VERSION=0.10.6
+RUN npm install -g "@bloxbean/yaci-devkit@${YACI_VERSION}" && npm cache clean --force
+
+# 8080  Yaci Store (API compatible con Blockfrost) — lo usa el off-chain
+# 10000 admin API — de acá sale el systemStart para convertir slots a tiempo
+# 3001  cardano-node
+EXPOSE 8080 10000 3001
+
+# --enable-yaci-store es lo que levanta la API que consume Mesh.
+CMD ["yaci-devkit", "up", "--enable-yaci-store"]
