@@ -160,7 +160,28 @@ podman run -it --rm -p 8080:8080 curso-sc:amd64 \
 
 Abrís `http://localhost:8080` y navegás los decks de las 9 clases.
 
-### Deploy local con anvil (Clase 3)
+### Dos terminales dentro del mismo contenedor (Clase 3)
+
+`anvil` ocupa una terminal entera, y el `forge script` / `cast` va en otra. Para que las dos
+vean el mismo `127.0.0.1:8545`, tienen que ser **dos shells del mismo contenedor**:
+
+```bash
+# TERMINAL 1 — arrancar el contenedor CON NOMBRE
+podman run -it --rm --name curso -v "$PWD":/curso:z curso-sc:arm64
+cd ethereum && anvil
+
+# TERMINAL 2 — entrar al mismo contenedor
+podman exec -it curso bash
+cd /curso/ethereum
+forge script script/DeployVault.s.sol --rpc-url http://127.0.0.1:8545 \
+  --private-key 0xac09...ff80 --broadcast
+```
+
+El **`--name`** es lo que hace posible el `exec`: sin él no hay forma de volver a entrar.
+`podman exec` hereda el `PATH` de la imagen, así que `forge` y `cast` están disponibles sin
+pasar por un login shell.
+
+### Deploy local con anvil, en su propio contenedor (Clase 3)
 
 ```bash
 podman run -it --rm -p 8545:8545 curso-sc:amd64 anvil --host 0.0.0.0
