@@ -58,7 +58,7 @@ chai 6.2.2, mocha 11.8.0, hardhat-ethers 4.0.15.
 | Verificar un evento | `vm.expectEmit(...)` | `.to.emit(vault, "Deposit").withArgs(...)` |
 | Fuzzing | `testFuzz_` (incluido) | no viene; habría que armarlo |
 | Viajar en el tiempo | `vm.warp` / `vm.roll` | `networkHelpers.time.*` |
-| Velocidad | **13 tests en ~20 ms** | 6 tests en ~55 ms |
+| Velocidad | **toda la suite en ~20 ms** | 6 tests en ~55 ms |
 
 **Se parecen más de lo que uno espera.** `hardhat-chai-matchers` da matchers de errores y eventos
 tipados contra el ABI del contrato, así que no se pierde precisión al salir de Solidity.
@@ -67,8 +67,7 @@ tipados contra el ABI del contrato, así que no se pierde precisión al salir de
 
 - **Tests en Solidity (Foundry):** son los que hay que escribir para **auditar y razonar sobre el
   contrato**. Corren dentro de la EVM, tienen cheatcodes que manipulan el estado (`vm.warp`,
-  `vm.deal`, `vm.store`), traen fuzzing e invariantes gratis, y son mucho más rápidos. Todo el
-  bloque de análisis del curso (Clases 6 y 7) se apoya en esto.
+  `vm.deal`, `vm.store`), traen fuzzing e invariantes gratis, y son mucho más rápidos.
 - **Tests desde el off-chain:** son los que atrapan lo que vive **en la frontera**: que el ABI sea
   el que el cliente espera, que la codificación de los argumentos sea correcta, que la app llame
   como el contrato supone. Los tests de Solidity **nunca cruzan esa frontera** — el compilador les
