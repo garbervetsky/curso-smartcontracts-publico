@@ -21,6 +21,7 @@ contract VaultTest is Test {
         vm.prank(alice);
         vault.deposit{value: 1 ether}();
         assertEq(vault.balanceOf(alice), 1 ether);
+        assertEq(alice.balance,9 ether);
     }
 
     function test_Deposit_AccumulatesMultipleDeposits() public {
@@ -33,7 +34,7 @@ contract VaultTest is Test {
 
     function test_Deposit_EmitsEvent() public {
         vm.expectEmit(true, false, false, true);
-        emit Vault.Deposit(alice, 1 ether);
+        emit Vault.Deposit(alice, 2 ether);
         vm.prank(alice);
         vault.deposit{value: 1 ether}();
     }
