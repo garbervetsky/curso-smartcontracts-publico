@@ -49,7 +49,15 @@ contract Vault {
     // acá, en vez de repetir el cuerpo? ¿Qué gana y qué pierde esa versión?
     //
     function withdrawAll() external {
-        // TODO: implementar
+        // Check
+        if(balances[msg.sender]==0) revert  InsufficientBalance();
+        // Effect:  
+        uint256 saldo = balances[msg.sender];
+        balances[msg.sender] = 0;
+        // Interaction:  
+        (bool ok, ) = msg.sender.call{value: saldo}("");
+        if (!ok) revert TransferFailed();
+        emit Withdraw(msg.sender, saldo);
     }
 
     function balanceOf(address account) external view returns (uint256) {
