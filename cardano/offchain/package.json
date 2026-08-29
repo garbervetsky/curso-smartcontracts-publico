@@ -7,6 +7,7 @@
   "scripts": {
     "preinstall": "node -e \"var m=+process.versions.node.split('.')[0];if(m<20){console.error('\\n  ERROR: npm install necesita node >= 20 y tenes v'+process.versions.node+'.\\n  Un npm viejo reescribe el package-lock y deja node_modules incompleto.\\n  Antes de instalar:  nvm use 24\\n');process.exit(1);}\"",
     "demo": "./run.sh src/demo.ts",
+    "demo-sin-red": "./run.sh src/demo-sin-red.ts",
     "lock": "./run.sh src/cli.ts lock",
     "claim": "./run.sh src/cli.ts claim",
     "cancel": "./run.sh src/cli.ts cancel",

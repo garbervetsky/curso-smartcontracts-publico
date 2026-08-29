@@ -5,15 +5,44 @@ Arma y manda **transacciones de verdad** contra un devnet local de Cardano
 validator, las reclama, las cancela — con fees, colateral, firmas y saldos que
 se mueven.
 
-> Hay **dos demos** de la Clase 4 y hacen cosas distintas:
+> Hay **tres demos** de la Clase 4 y hacen cosas distintas:
 >
 > | | qué hace | red |
 > |---|---|---|
 > | `scripts/demo-tx-cardano.sh` | ejecuta el validator aislado sobre transacciones armadas a mano | **ninguna** |
-> | esta (`npm run demo`) | manda transacciones a una cadena | devnet local |
+> | `npm run demo-sin-red` | **Mesh armando la tx de Claim**, paso por paso | **ninguna** |
+> | `npm run demo` | manda transacciones a una cadena | devnet local |
 >
-> La primera nunca falla y sirve para explicar el modelo. Esta muestra que la
-> cosa funciona de verdad.
+> La primera explica el modelo y nunca falla. La segunda es la que acompaña la
+> slide "El off-chain (Mesh.js)": muestra el mismo código, corriendo, en dos
+> segundos y sin levantar nada. La tercera muestra que la cosa funciona de
+> verdad. Ver `docs/guia-profesor/clase-04.md` §5 y §5bis.
+
+## Mesh sin devnet (`npm run demo-sin-red`)
+
+Lo único que hace falta es `npm install` — ni devnet, ni internet:
+
+```bash
+cd cardano/offchain
+npm install
+npm run demo-sin-red
+```
+
+Recorre el camino completo del off-chain: leer el blueprint, derivar la
+dirección del script de su hash, derivar las claves de Alice y Bob, fabricar el
+UTXO bloqueado con su datum inline, y armar el Claim con `MeshTxBuilder` —
+input, script, redeemer, firmante requerido, colateral, balanceo y firma.
+Termina imprimiendo el CBOR de la transacción.
+
+Lo que **no** hace es enviarla: para eso hace falta una cadena, y ahí entra
+`npm run demo`.
+
+Funciona sin red porque usa `OfflineFetcher`: en vez de salir a buscar los
+parámetros de protocolo y los UTXOs, se los cargamos a mano. Los parámetros
+están en `src/parametros-protocolo.json`, capturados del devnet del curso. Las
+ExUnits se declaran fijas (holgadas) porque no hay evaluador al que preguntarle.
+Los UTXOs son inventados y sus hashes son obviamente falsos (`1c1c…`, `2b2b…`)
+para que nadie los confunda con datos de una cadena.
 
 ## Arrancar
 
