@@ -50,6 +50,20 @@ const FONDOS_DE_BOB = "10000000"; // 10 ADA, para fee y colateral
 // lo que importa es el armado, no afinar el presupuesto.
 const EX_UNITS = { mem: 500_000, steps: 200_000_000 };
 
+// El validator compara el deadline (POSIX ms) contra la validity_range de la tx,
+// que se declara en SLOTS. Traducir de uno a otro necesita el génesis del ledger:
+//
+//     tiempo(slot) = systemStart + slot × slotLength
+//
+// Contra una cadena eso sale de /genesis/shelley — ver relojDelLedger() en
+// comun.ts. Acá no hay ledger, así que los fijamos. Son inventados pero
+// coherentes entre sí, y hacen que la demo dé siempre lo mismo.
+const SYSTEM_START = 1_788_000_000; // unix seg
+const SLOT_LENGTH = 1; // seg por slot, como el devnet del curso
+
+const SLOT_DEL_DEADLINE = 3600; // una hora de cadena
+const DEADLINE_MS = (SYSTEM_START + SLOT_DEL_DEADLINE * SLOT_LENGTH) * 1000;
+
 async function main() {
   // ---------------------------------------------------------------------------
   titulo("1 · El validator: del blueprint a una dirección");
@@ -114,8 +128,7 @@ async function main() {
   // ---------------------------------------------------------------------------
   titulo("3 · El UTXO bloqueado (como si el LOCK ya hubiera pasado)");
 
-  const deadlineMs = Date.now() + 60_000;
-  const datumEscrow = mConStr0([bobPkh, alicePkh, deadlineMs]);
+  const datumEscrow = mConStr0([bobPkh, alicePkh, DEADLINE_MS]);
   const datumHex = serializeData(datumEscrow, "Mesh");
 
   const utxoDelEscrow: UTxO = {
@@ -141,7 +154,7 @@ async function main() {
   campo("valor", ada(MONTO_BLOQUEADO));
   campo("datum", `beneficiary = ${corto(bobPkh)}  ${c.d}(Bob)${c.r}`);
   campo("", `owner       = ${corto(alicePkh)}  ${c.d}(Alice)${c.r}`);
-  campo("", `deadline    = ${deadlineMs}`);
+  campo("", `deadline    = ${DEADLINE_MS}  ${c.d}(slot ${SLOT_DEL_DEADLINE})${c.r}`);
   campo("datum (CBOR)", corto(datumHex, 24));
   nota("Va inline en el UTXO: el que gasta no tiene que aportarlo, ya está en la cadena.");
 
@@ -168,6 +181,7 @@ async function main() {
       utxoDeBob.output.amount,
       utxoDeBob.output.address,
     )
+    .invalidHereafter(SLOT_DEL_DEADLINE) //             ← SIN esto el Claim se rechaza
     .changeAddress(bobAddr)
     .selectUtxosFrom([utxoDeBob]);
 
@@ -178,6 +192,13 @@ async function main() {
   campo("script", `${c.b}sí — corre escrow.spend${c.r}`);
   campo("signatories", `[ Bob  ${corto(bobPkh)} ]`);
   campo("colateral", `${corto(TX_DE_BOB)} # 0`);
+  campo("validity", `hasta el slot ${SLOT_DEL_DEADLINE}  ${c.d}(el del deadline)${c.r}`);
+  nota(
+    "Ese último es el que más se olvida: can_claim exige que la validity_range esté",
+  );
+  nota(
+    "contenida en (-∞, deadline]. Sin invalidHereafter el rango es infinito y falla.",
+  );
 
   // ---------------------------------------------------------------------------
   titulo("5 · La transacción armada");
