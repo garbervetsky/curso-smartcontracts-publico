@@ -80,6 +80,7 @@ No hace falta ninguna accion adicional.
 
 ## Contenido
 
+- `validators/solo_duenio.ak` — el validator mínimo de la Clase 4: una condición, sin tests.
 - `validators/escrow.ak` — se construye en la Clase 5 y se audita en la Clase 9.
 - `offchain/` — off-chain con Mesh: arma y manda **transacciones reales** del escrow
   contra un devnet local. Ver `offchain/README.md`.
