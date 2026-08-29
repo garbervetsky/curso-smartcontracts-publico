@@ -10,39 +10,30 @@ se mueven.
 > | | qué hace | red |
 > |---|---|---|
 > | `scripts/demo-tx-cardano.sh` | ejecuta el validator aislado sobre transacciones armadas a mano | **ninguna** |
-> | `npm run demo-sin-red` | **Mesh armando la tx de Claim**, paso por paso | **ninguna** |
-> | `npm run demo` | manda transacciones a una cadena | devnet local |
+> | `npm run demo-simple` | **bloquea y reclama**, en 40 líneas legibles | devnet local |
+> | `npm run demo` | el recorrido completo, con los tres actos | devnet local |
 >
 > La primera explica el modelo y nunca falla. La segunda es la que acompaña la
-> slide "El off-chain (Mesh.js)": muestra el mismo código, corriendo, en dos
-> segundos y sin levantar nada. La tercera muestra que la cosa funciona de
-> verdad. Ver `docs/guia-profesor/clase-04.md` §5 y §5bis.
+> slide "El off-chain (Mesh.js)": el mismo código, corriendo. La tercera es el
+> recorrido narrado, incluido el agujero del escrow.
+> Ver `docs/guia-profesor/clase-04.md` §5, §5ter y §5bis.
 
-## Mesh sin devnet (`npm run demo-sin-red`)
-
-Lo único que hace falta es `npm install` — ni devnet, ni internet:
+## El ciclo mínimo (`npm run demo-simple`)
 
 ```bash
-cd cardano/offchain
-npm install
-npm run demo-sin-red
+./scripts/devnet.sh up          # terminal 1
+cd cardano/offchain && npm run demo-simple
 ```
 
-Recorre el camino completo del off-chain: leer el blueprint, derivar la
-dirección del script de su hash, derivar las claves de Alice y Bob, fabricar el
-UTXO bloqueado con su datum inline, y armar el Claim con `MeshTxBuilder` —
-input, script, redeemer, firmante requerido, colateral, balanceo y firma.
-Termina imprimiendo el CBOR de la transacción.
+Bloquea 5 ADA para Bob y se los deja reclamar. Nada más. Son **~40 líneas de
+código**, escritas para leerse en pantalla mientras se explica: el `lock` (que no
+ejecuta el validator) y el `claim` (que sí), con la cadena de `MeshTxBuilder`
+comentada línea por línea.
 
-Lo que **no** hace es enviarla: para eso hace falta una cadena, y ahí entra
-`npm run demo`.
-
-Funciona sin red porque usa `OfflineFetcher`: en vez de salir a buscar los
-parámetros de protocolo y los UTXOs, se los cargamos a mano. Los parámetros
-están en `src/parametros-protocolo.json`, capturados del devnet del curso. Las
-ExUnits se declaran fijas (holgadas) porque no hay evaluador al que preguntarle.
-Los UTXOs son inventados y sus hashes son obviamente falsos (`1c1c…`, `2b2b…`)
-para que nadie los confunda con datos de una cadena.
+El andamiaje —de dónde salen las claves, cómo se lee el blueprint, cómo se
+traduce tiempo a slots— vive en `comun.ts`, y por eso el archivo entra de un
+vistazo. `pasos.ts` es la versión completa: agrega cancelar, los casos que deben
+fallar, y mandar los fondos a otra dirección.
 
 ## Arrancar
 
