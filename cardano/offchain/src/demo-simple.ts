@@ -52,14 +52,12 @@ const antes = await saldo(bob.address);
 const claim = txBuilder();
 claim
   .spendingPlutusScript("V3")                    // la versión de Plutus, no el código
-  .txIn(utxo.input.txHash, utxo.input.outputIndex,
-        utxo.output.amount, utxo.output.address) // el UTXO bloqueado
-  .txInScript(s.cbor)                            // el código del validator
-  .txInInlineDatumPresent()                      // el datum ya está en la cadena
-  .txInRedeemerValue(CLAIM)                      // Claim = constructor 0
-  .requiredSignerHash(bob.pubKeyHash)            // declarar el firmante, no alcanza con firmar
-  .txInCollateral(colateral.input.txHash, colateral.input.outputIndex,
-                  colateral.output.amount, colateral.output.address)
+  .txIn(utxo.input.txHash, utxo.input.outputIndex)     // el UTXO bloqueado
+  .txInScript(s.cbor)                                 // el código del validator
+  .txInInlineDatumPresent()                           // el datum ya está en la cadena
+  .txInRedeemerValue(CLAIM)                           // Claim = constructor 0
+  .requiredSignerHash(bob.pubKeyHash)                 // declarar el firmante, no alcanza con firmar
+  .txInCollateral(colateral.input.txHash, colateral.input.outputIndex)
   .invalidHereafter(reloj.slotDe(deadlineMs / 1000))  // sin esto, can_claim rechaza
   .changeAddress(bob.address);
 
