@@ -16,6 +16,27 @@ cd "$(dirname "$0")"
 . ../../scripts/lib/node-moderno.sh
 asegurar_node_moderno 20 "el off-chain de Cardano (Mesh + tsx)"
 
+# --- ¿El devnet está acá adentro? -------------------------------------------
+# La imagen del curso trae YACI_API=http://host.containers.internal:8080/...,
+# que es correcto cuando el devnet corre en el host. Pero `scripts/devnet.sh`
+# también sabe levantarlo DENTRO del contenedor, y ahí esa dirección apunta al
+# lugar equivocado: el alumno ve "No pude hablar con el devnet" con el devnet
+# corriendo a un centímetro. Si el default de la imagen sigue puesto y hay un
+# devnet contestando en localhost, gana localhost.
+#
+# Sólo se toca el valor de la imagen: si vos exportaste otro YACI_API, se
+# respeta (es la forma de apuntar a un devnet remoto o a otro puerto).
+case "${YACI_API:-}" in
+  *host.containers.internal*|*host.docker.internal*)
+    if command -v curl >/dev/null 2>&1 &&
+       curl -s -m 2 http://localhost:8080/api/v1/blocks/latest 2>/dev/null | grep -q '"height"'; then
+      echo "→ hay un devnet en localhost (adentro del contenedor): uso ese, no el del host." >&2
+      export YACI_API="http://localhost:8080/api/v1/"
+      export YACI_ADMIN="http://localhost:10000/local-cluster/api/"
+    fi
+    ;;
+esac
+
 # Se invocan los binarios locales en vez de `npx`: si el npm que lanzó esto es
 # viejo, exporta un montón de npm_config_* que el npx moderno no entiende y
 # llena la pantalla de warnings antes de que arranque la demo.
