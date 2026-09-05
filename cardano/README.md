@@ -80,7 +80,8 @@ No hace falta ninguna accion adicional.
 
 ## Contenido
 
-- `validators/escrow.ak` — se construye en la Clase 5 y se audita en la Clase 9.
+- `validators/escrow.ak` — se repasa en la Clase 5 y se audita en la Clase 9.
+- `validators/vesting.ak` — el taller de la Clase 5: viene sin implementar, sus tests arrancan en rojo.
 - `offchain/` — off-chain con Mesh: arma y manda **transacciones reales** del escrow
   contra un devnet local. Ver `offchain/README.md`.
 - `aiken.toml` — configuracion del proyecto (nombre, version de Plutus, dependencias).
