@@ -6,8 +6,8 @@ license = "Apache-2.0"
 description = "Validators del curso de smart contracts (track Cardano)"
 
 [repository]
-user = "tu-usuario"
-project = "curso-smartcontracts"
+user = "garbervetsky"
+project = "curso-smartcontracts-publico"
 platform = "github"
 
 [[dependencies]]
