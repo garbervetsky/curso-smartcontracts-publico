@@ -79,13 +79,13 @@ export async function datosDe(actor: Actor) {
 // --- El validator ------------------------------------------------------------
 // El CBOR sale del blueprint que genera `aiken build`. La dirección del script
 // NO se "despliega": se deriva del hash del código compilado.
-export function script() {
+export function script(titulo = "escrow.escrow.spend") {
   const ruta = join(aca, "..", "..", "plutus.json");
   const bp = JSON.parse(readFileSync(ruta, "utf8"));
-  const v = bp.validators.find((x: any) => x.title === "escrow.escrow.spend");
+  const v = bp.validators.find((x: any) => x.title === titulo);
   if (!v) {
     throw new Error(
-      `No encontré 'escrow.escrow.spend' en ${ruta}. ¿Corriste 'aiken build' en cardano/?`,
+      `No encontré '${titulo}' en ${ruta}. ¿Corriste 'aiken build' en cardano/?`,
     );
   }
   // OJO: el `compiledCode` del blueprint viene con una sola capa de CBOR, y el
@@ -118,14 +118,22 @@ export const CANCEL = mConStr1([]);
 
 // --- Tiempo y slots ----------------------------------------------------------
 // El validator compara contra POSIX time en ms, pero la transacción declara su
-// rango de validez en SLOTS: el ledger traduce. En vez de hardcodear el génesis
-// del devnet, derivamos la relación del propio ledger.
-// OJO: NO sirve derivar la relación slot↔tiempo del campo `time` de
-// /blocks/latest — en el devnet viene corrido respecto del reloj del ledger (lo
-// vimos: 600 s de diferencia, y el claim de Bob se rechazaba por eso). La única
-// fuente correcta es el `systemStart` del génesis de Shelley:
+// rango de validez en SLOTS: el ledger traduce. Hay que derivar esa relación del
+// propio ledger, y acá está la trampa que costó encontrar:
 //
-//     tiempo(slot) = systemStart + slot × slotLength
+// NO sirve `systemStart + slot × slotLength` con el systemStart del génesis de
+// Shelley. En este devnet eso da **600 s de más**, que es exactamente un
+// `epochLength`: los slots son absolutos y el génesis de Shelley arranca una
+// época después del slot 0.
+//
+// El síntoma es engañoso porque el escrow **no lo nota**: su Claim exige un
+// borde SUPERIOR ≤ deadline, y un error de +600 lo deja del lado seguro. El
+// vesting, que exige un borde INFERIOR ≥ deadline, falla siempre.
+//
+// La fuente correcta es anclar en un bloque real, cuyo `time` ES la noción del
+// ledger:
+//
+//     tiempo(slot) = bloque.time + (slot − bloque.slot) × slotLength
 export async function relojDelLedger() {
   const g = await fetch(new URL("admin/devnet/genesis/shelley", YACI_ADMIN));
   if (!g.ok) {
@@ -171,8 +179,8 @@ export async function saldo(address: string): Promise<bigint> {
   );
 }
 
-export async function utxosDelScript(): Promise<UTxO[]> {
-  return provider.fetchAddressUTxOs(script().address);
+export async function utxosDelScript(direccion?: string): Promise<UTxO[]> {
+  return provider.fetchAddressUTxOs(direccion ?? script().address);
 }
 
 async function alturaActual(): Promise<number | null> {
