@@ -94,7 +94,34 @@ unlock
   .selectUtxosFrom(await bob.w.getUtxos());
 await unlock.complete();
 
-const hashUnlock = await bob.w.submitTx(await bob.w.signTx(unlock.txHex));
-await esperarTx(hashUnlock);
-console.log(`UNLOCK  ${hashUnlock}`);
-console.log(`        Bob: ${ada(antes)} → ${ada(await saldo(bob.address))}`);
+try {
+  const hashUnlock = await bob.w.submitTx(await bob.w.signTx(unlock.txHex));
+  await esperarTx(hashUnlock);
+  console.log(`UNLOCK  ${hashUnlock}`);
+  console.log(`        Bob: ${ada(antes)} → ${ada(await saldo(bob.address))}`);
+} catch (e) {
+  explicarRechazo(e);
+  process.exit(1);
+}
+
+/**
+ * La cadena rechaza la tx con un volcado enorme e ilegible. Adentro están las dos
+ * líneas que importan: qué rango de validez y qué firmantes vio el validator.
+ * Las extraemos y descartamos el resto.
+ */
+function explicarRechazo(e: unknown) {
+  const msg = String((e as any)?.message ?? e).replace(/\\+8734/g, "∞");
+  const rango = msg.match(/Valid range: \(([^)]*)\)/)?.[1]?.trim();
+  const firmas = msg.match(/Signatories: \[([^\]]*)\]/)?.[1]?.trim();
+
+  console.log("\n  La cadena RECHAZÓ la transacción: el validator devolvió False.\n");
+  if (rango) console.log(`    Valid range que vio el validator : ${rango}`);
+  if (firmas !== undefined) console.log(`    Signatories                     : [${firmas}]`);
+  console.log(`
+  Si el rango es (-∞ , +∞), la transacción no declaró ninguno: falta el TODO 2.
+  Si Signatories está vacío, falta el TODO 1 — y ojo, firmar no alcanza: hay que
+  DECLARAR el firmante requerido.
+
+  Los dos TODO están en el UNLOCK, más arriba en este archivo.
+`);
+}
