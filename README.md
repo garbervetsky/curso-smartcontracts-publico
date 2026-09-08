@@ -74,6 +74,24 @@ Agregamos **--userns=keep-id** al ejecutar el contenedor para preservar los perm
 
 Guía completa —opcionales, servir las slides, `anvil`, demos— en **`docs/entorno-contenedor.md`**.
 
+Si estas en el Laboratorio vas a tener que usar docker. Para eso tener que migrar la imagen:
+
+
+```bash
+chmod +x ./scripts/podman2docker.sh
+./scripts/podman2docker.sh
+```
+
+Anota el nombre de la imagen (empieza con `sha256:elNroDeImagen`
+
+Luego podes usar 
+
+
+```bash
+docker run -it --rm --u root -v "$PWD":/curso:z elNroDeImagen
+```
+
+
 ### 3. Verificar que quedó bien
 
 ```bash
