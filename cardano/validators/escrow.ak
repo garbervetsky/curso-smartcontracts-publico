@@ -5,8 +5,6 @@
 // deadline, o cancelado por el owner en cualquier momento.
 //
 // Clase 5: versión completa con deadline via validity_range.
-// Clase 9 (auditoría): ¿este validator verifica que los fondos realmente lleguen
-//   al beneficiario y por el monto correcto? (pista: double satisfaction).
 
 use aiken/collection/list
 use aiken/interval
