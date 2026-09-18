@@ -34,7 +34,7 @@ contract VaultTest is Test {
 
     function test_Deposit_EmitsEvent() public {
         vm.expectEmit(true, false, false, true);
-        emit Vault.Deposit(alice, 2 ether);
+        emit Vault.Deposit(alice, 1 ether);
         vm.prank(alice);
         vault.deposit{value: 1 ether}();
     }
