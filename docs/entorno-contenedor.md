@@ -136,7 +136,8 @@ Te deja adentro, en `/curso`, con todo listo. Probá que anda:
 ```bash
 cd ethereum && forge test        # → 23 passed + 4 failed (los 4 son la ACTIVIDAD de la Clase 3)
 cd ethereum && forge test --no-match-contract AlcanciaTest   # → 23 passed, 0 failed (línea base)
-cd ../cardano && aiken check     # → 14 passed
+cd ../cardano && aiken check                     # → 7 passed + 5 failed (el TALLER de la Clase 5)
+cd ../cardano && aiken check -m claim -m cancel  # → 7 passed, 0 failed (línea base)
 ```
 
 Las versiones exactas preparadas están en `~/VERSIONES.txt`.
@@ -290,7 +291,7 @@ podman run --rm curso-sc:arm64 bash -lc '
   which forge aiken slither marp
   cd /curso/ethereum && forge test --no-match-contract AlcanciaTest | tail -1
   forge test | tail -1
-  cd /curso/cardano && aiken check 2>&1 | grep -oE "\"passed\": [0-9]+"
+  cd /curso/cardano && aiken check -m claim -m cancel 2>&1 | grep -oE "\"passed\": [0-9]+"
 '
 ```
 
@@ -308,10 +309,18 @@ Cómo leer esos tres números:
 |---|---|
 | `forge test --no-match-contract AlcanciaTest` | **la línea base**: 13 de `Vault.t.sol` + 2 de `VaultInvariant.t.sol`. Tiene que dar **15 / 0**. |
 | `forge test` | todo, incluida la actividad de la Clase 3: 15 + el test modelo de `Alcancia` = **16 passed**, y **4 failed**. |
-| `aiken check` | los **7** tests de `escrow.ak`. |
+| `aiken check -m claim -m cancel` | **la línea base de Cardano**: los **7** tests de `escrow.ak`. Tiene que dar **7 / 0**. |
+| `aiken check` | todo, incluido el taller de la Clase 5: 7 passed y **5 failed** (`vesting.ak`). |
 
-> **Los 4 que fallan son correctos:** son las consignas de la **actividad de la Clase 3**
-> (`test/Alcancia.t.sol`), que arrancan en rojo a propósito y el alumno completa.
+> **Los que fallan son correctos:** son las consignas que el alumno completa y arrancan en rojo
+> a propósito — los 4 de la **actividad de la Clase 3** (`test/Alcancia.t.sol`) y los 5
+> `unlock_*` del **taller de la Clase 5** (`cardano/validators/vesting.ak`, con `can_unlock`
+> sin implementar).
+>
+> Por eso el build de la imagen filtra en los dos lados (`--no-match-contract AlcanciaTest` y
+> `-m claim -m cancel`). Ojo con el filtro de aiken: no tiene flag de exclusión, y `-m escrow`
+> **no matchea nada** — corre 0 tests y sale 0, o sea que pasaría sin validar nada. `-m` matchea
+> nombres de test.
 
 > Estos números **suben** cuando se agregue el material de las Clases 6 a 9
 > (ver `PROXIMAS-CLASES.md`). La imagen se valida sola: si `forge test` o `aiken check`

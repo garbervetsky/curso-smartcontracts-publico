@@ -178,10 +178,19 @@ RUN cd /curso/ethereum \
 # `build` además regenera plutus.json (el blueprint), que es lo que consume el
 # off-chain de la Clase 4: así la imagen nunca queda con un blueprint viejo.
 #
-# Línea base: los 7 tests de escrow.ak. Sube cuando se agreguen los validators
-# de las Clases 8-9 (ver PROXIMAS-CLASES.md).
+# Línea base: los 7 tests de escrow.ak (los `claim_*` y `cancel_*`). Sube cuando
+# se agreguen los validators de las Clases 8-9 (ver PROXIMAS-CLASES.md).
+#
+# Se filtra por nombre igual que el --no-match-contract AlcanciaTest de Ethereum,
+# y por el mismo motivo: `vesting.ak` es el TALLER de la Clase 5 (`can_unlock` sin
+# implementar) y sus 5 tests `unlock_*` arrancan en rojo a propósito. Un `aiken
+# check` pelado sale con exit 1 y el build de la imagen no termina.
+#
+# OJO al filtrar: aiken no tiene flag de exclusión, y `-m escrow` (el módulo) NO
+# matchea nada — corre 0 tests y sale 0, o sea que pasaría sin validar nada. `-m`
+# matchea NOMBRES DE TEST, así que hay que nombrarlos como acá.
 RUN cd /curso/cardano \
-    && aiken check \
+    && aiken check -m claim -m cancel \
     && aiken build
 
 # --- Off-chain de Cardano (Mesh) — transacciones reales, Clase 4 -------------

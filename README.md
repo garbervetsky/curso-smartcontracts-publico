@@ -96,7 +96,7 @@ docker run -it --rm -u root --name curso --network="host" -v "$PWD":/curso:z elN
 
 ```bash
 cd /curso/ethereum && forge test --no-match-contract AlcanciaTest    # 11 tests en verde
-cd /curso/cardano  && aiken check                                    # 7 tests en verde
+cd /curso/cardano  && aiken check -m claim -m cancel                 # 7 tests en verde
 ```
 
 > `AlcanciaTest` se excluye a propósito: son los tests de la **actividad de la Clase 3** y arrancan

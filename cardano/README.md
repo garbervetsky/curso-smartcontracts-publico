@@ -38,8 +38,12 @@ cd cardano/
 ### Paso 3 — Verificar que compila y los tests pasan
 
 ```bash
-aiken check
+aiken check -m claim -m cancel
 ```
+
+Se filtra a los 7 tests del escrow a propósito: `aiken check` pelado corre **también** los 5
+de `vesting.ak`, que arrancan **en rojo porque son el taller de la Clase 5** (`can_unlock` sin
+implementar). Es lo esperable, no una instalación rota.
 
 En la primera ejecución descarga `aiken-lang/stdlib` desde GitHub (requiere acceso a internet).
 Las siguientes ejecuciones usan el cache local en `build/`.
@@ -66,7 +70,9 @@ usa para conocer la dirección del validator.
 ## Comandos de uso frecuente
 
 ```bash
-aiken check              # type-check + correr todos los tests
+aiken check                      # type-check + TODOS los tests (los 5 de vesting.ak
+                                 # arrancan en rojo: son el taller de la Clase 5)
+aiken check -m claim -m cancel   # sólo los 7 del escrow — la línea base, 7/0
 aiken build              # compilar a UPLC y generar plutus.json
 aiken docs               # generar documentacion del proyecto en HTML
 ```
