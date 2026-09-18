@@ -85,6 +85,37 @@ SIN_PAUSA=1 npm run demo    # de corrido, para revisar antes de la clase
 3. **El agujero** — Bob reclama con su firma **pero manda los 100 ADA a Eve**, y
    la red lo acepta. Es el gancho de la Clase 9, ocurriendo de verdad.
 
+## Mirar la cadena mientras pasan cosas
+
+En una **tercera terminal**, al lado de la demo:
+
+```bash
+npm run mirar
+```
+
+Imprime cada transacción **a medida que entra en un bloque**, con los actores por
+nombre en vez de direcciones. Los bloques vacíos no ensucian: una sola línea que
+se pisa a sí misma. Así se ve el Acto 3 desde la cadena:
+
+```text
+bloque #1119  15:26:58  tx 115a4f78…6596  corre el validator
+      gasta Bob          4,772628 ADA
+    ◀ desde el script    100 ADA
+      →  Eve          100 ADA
+      →  Bob          4,540812 ADA
+      fee        0,231816 ADA
+```
+
+Bob firmó, el validator dijo que sí, y los 100 ADA fueron **a Eve**. Sin relato
+del script que la mandó: es lo que quedó escrito en la cadena.
+
+> El devnet **no muestra nada de esto por su cuenta**. `devnet.sh logs` sólo
+> tiene el banner de arranque, y los logs del nodo y de yaci-store son una pared
+> de texto por segundo donde una transacción real pasa desapercibida.
+
+Con `npm run mirar -- --desde 500` arranca desde un bloque viejo, para revisar
+hacia atrás lo que ya pasó.
+
 ## Operaciones sueltas
 
 ```bash
@@ -102,6 +133,7 @@ npm run cancel
 | `src/pasos.ts` | `bloquear`, `reclamar`, `cancelar` — las tres transacciones |
 | `src/demo.ts` | el recorrido paso a paso |
 | `src/cli.ts` | las operaciones sueltas |
+| `src/mirar.ts` | el monitor de la cadena (`npm run mirar`) |
 
 Los actores salen del mnemonic conocido del devnet (`test test … sauce`), como
 cuentas 0, 1 y 2: **Alice**, **Bob**, **Eve**. No hay ningún secreto acá.
