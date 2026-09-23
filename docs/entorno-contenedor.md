@@ -198,7 +198,7 @@ Desde otra terminal, dentro del contenedor o desde el host, apuntás a
 | Herramienta | Clases | Comprobación rápida |
 |---|---|---|
 | **Foundry** (`forge`, `anvil`, `cast`) | 2, 3, 6, 7 | `cd ethereum && forge test -vv` |
-| **solc + SMTChecker** (con `z3`) | 6, 7 | `forge build` con el bloque `model_checker` |
+| **solc + SMTChecker** (`z3` en amd64, **Eldarica** en arm64) | 6, 7 | `forge build --force` con el bloque `model_checker` |
 | **Slither** | 6, 7 | `cd ethereum && slither src/Vault.sol` |
 | **Aiken** (+ stdlib cacheado) | 4, 5, 8, 9 | `cd cardano && aiken check` |
 | **Node + Marp** | todas | `marp -s docs/slides` |
@@ -225,7 +225,37 @@ aiken build                    # genera plutus.json
 # Clase 6 — estático + invariantes
 cd ethereum && slither src/Vault.sol
 forge test --match-contract VaultInvariantTest -vv
+
+# Clase 6 — SMTChecker (forge cachea: sin --force no vuelve a analizar)
+cd ethereum && forge build --force
 ```
+
+### El SMTChecker usa un solver distinto en cada arquitectura
+
+Sale solo, no hay que configurar nada, pero **la salida no es idéntica** y conviene saberlo antes
+de proyectarla:
+
+| | amd64 (labs, y macOS) | arm64 (Apple Silicon) |
+|---|---|---|
+| solver | **z3**, adentro de la imagen (`libz3.so.4.12`) | **Eldarica** (`eld`, JVM) |
+| tiempo de `forge build --force` | ~26 s | ~110 s |
+| hallazgos sobre `Vault.sol` | underflow *happens here* (línea 30), overflow *might happen* (línea 20) | **los mismos** |
+| contraejemplo concreto | ✅ `amount = 1` | ❌ sólo dice que el camino existe |
+| ruido | — | 1 warning `8158` ("z3 no disponible") + 1 `CHC: Error trying to invoke SMT solver` |
+
+La causa es contraintuitiva y **no** es que "arm64 sea peor": el `solc` de aarch64 se compila
+**sin z3 adentro** (0 símbolos `Z3_*`), así que instalar `libz3` no cambia nada — el binario ni
+siquiera la referencia. Eldarica en cambio se invoca como **proceso externo**, y por eso funciona.
+
+Lo que lo hace andar es una línea de `ethereum/foundry.toml`, y **es obligatoria**:
+
+```toml
+solvers = ["z3", "eld"]   # solc usa el que encuentre: z3 en amd64, eld en arm64
+```
+
+> **Si la sacás, en arm64 el análisis no corre**: `forge build` termina bien pero escupe
+> `Warning (7649): CHC analysis was not possible since no Horn solver was found`. Ojo con esa
+> warning: dice que **no se verificó nada**, no que no encontró problemas.
 
 > **Clases 6 a 9:** las demos de explotación (`VaultVulnerable`, `escrow_vulnerable`) necesitan
 > material que **todavía no está en el repo** — se agrega durante el curso. Ver

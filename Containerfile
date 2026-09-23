@@ -211,8 +211,8 @@ ENV YACI_API=http://host.containers.internal:8080/api/v1/ \
 # Se baja la 4.12 oficial de Z3Prover y se instala con ese nombre.
 #
 # En arm64 esto NO sirve: el solc de aarch64 se compila SIN soporte de z3
-# (0 símbolos Z3_*), así que el SMTChecker no puede funcionar. Por eso el paso
-# se salta silenciosamente en esa arquitectura.
+# (0 símbolos Z3_*), así que el paso se salta en esa arquitectura y el SMTChecker
+# usa Eldarica, que se instala más abajo.
 #
 # Escribe en /usr/lib y corre ldconfig, así que necesita root: a esta altura del
 # Containerfile ya estamos como `curso` (desde la línea del USER más arriba), y
@@ -228,7 +228,41 @@ RUN set -eux; \
         ldconfig; rm -rf /tmp/z3.zip /tmp/z3-*; \
         echo ">>> libz3 4.12 instalada: el SMTChecker de solc funciona en esta imagen"; \
     else \
-        echo ">>> arm64: el solc de aarch64 no soporta z3; el SMTChecker no estara disponible"; \
+        echo ">>> arm64: el solc de aarch64 no soporta z3; el SMTChecker usa Eldarica"; \
+    fi
+
+# Eldarica — el solver del SMTChecker en arm64 (Clase 6).
+#
+# El otro solver que solc acepta para `chc`, y la única salida en aarch64: a
+# Eldarica la invoca como PROCESO EXTERNO (busca `eld` en el PATH), así que no
+# depende de cómo se compiló el binario de solc. Verificado sobre Vault.sol:
+# reporta lo mismo que z3 (underflow "happens here" en la linea 30, overflow
+# "might happen" en la 20) en ~110 s. Dos diferencias con z3, y ninguna se
+# arregla: NO imprime el contraejemplo concreto (z3 dice `amount = 1`, Eldarica
+# sólo dice que el camino existe), y una consulta termina en
+# "CHC: Error trying to invoke SMT solver".
+#
+# Sólo se instala en arm64: son ~250 MB (Eldarica es JVM) y en amd64 no hace
+# falta, porque ahí z3 anda y además da el contraejemplo. Que `eld` NO exista en
+# la imagen amd64 es inofensivo: `solvers = ["z3", "eld"]` en ethereum/foundry.toml
+# no genera ni una warning por el que falta. Esa línea es OBLIGATORIA: sin ella
+# solc elige z3 aunque `eld` esté en el PATH, y en arm64 no analiza nada.
+ARG ELDARICA_VERSION=2.3
+RUN set -eux; \
+    if [ "$(dpkg --print-architecture)" = "arm64" ]; then \
+        apt-get update; \
+        apt-get install -y --no-install-recommends default-jre-headless; \
+        rm -rf /var/lib/apt/lists/*; \
+        cd /opt; \
+        curl -fsSL -o eld.zip \
+          "https://github.com/uuverifiers/eldarica/releases/download/v${ELDARICA_VERSION}/eldarica-bin-${ELDARICA_VERSION}.zip"; \
+        unzip -q eld.zip; rm eld.zip; \
+        chmod +x "/opt/eldarica-bin-${ELDARICA_VERSION}/eld"; \
+        ln -s "/opt/eldarica-bin-${ELDARICA_VERSION}/eld" /usr/local/bin/eld; \
+        eld -h > /dev/null 2>&1 || true; \
+        echo ">>> Eldarica ${ELDARICA_VERSION} instalada: el SMTChecker funciona en arm64"; \
+    else \
+        echo ">>> amd64: el SMTChecker usa z3, Eldarica no hace falta"; \
     fi
 USER curso
 
