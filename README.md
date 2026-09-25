@@ -95,7 +95,7 @@ docker run -it --rm -u root --name curso --network="host" -v "$PWD":/curso:z elN
 ### 3. Verificar que quedó bien
 
 ```bash
-cd /curso/ethereum && forge test --no-match-contract AlcanciaTest    # 11 tests en verde
+cd /curso/ethereum && forge test --no-match-contract AlcanciaTest    # 14 tests en verde
 cd /curso/cardano  && aiken check -m claim -m cancel                 # 7 tests en verde
 ```
 

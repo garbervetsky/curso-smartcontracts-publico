@@ -1,0 +1,11 @@
+# Configuracion de halmos (verificacion simbolica acotada; ver test/halmos/).
+[global]
+# z3 y no yices, el default: yices no tiene paquete para Linux arm64, y en macOS
+# la corrida con yices murio a los 22 s en el mismo test que z3 resuelve en 0,4 s.
+solver = "z3"
+
+# Solo los contratos de test/halmos/. Sin esto `halmos` a secas levanta tambien
+# los invariant_* de test/ (VaultInvariant.t.sol, VaultVulnerable.t.sol), que
+# estan escritos para el fuzzer: el primero tarda 82 s y los demas no terminan.
+# --contract o --match-contract en la linea de comandos pisan este valor.
+match-contract = "Halmos$"

@@ -15,11 +15,21 @@ git pull
 | Cuándo | Qué se agrega | Dónde va a aparecer |
 |---|---|---|
 | **Clase 6** | `VaultInvariant.t.sol` — tests de invariantes | `ethereum/test/` |
-| **Clases 6–7** | `VaultVulnerable.sol` y sus tests | `ethereum/src/`, `ethereum/test/` |
-| **Clases 6–7** | `VaultFixed.sol` y sus tests | `ethereum/src/`, `ethereum/test/` |
 | **Clases 8–9** | `escrow_vulnerable.ak` | `cardano/validators/` |
 | **Clases 8–9** | `escrow_fixed.ak` | `cardano/validators/` |
 | **Cada clase** | Las slides | `docs/slides/clase-NN/slides.md` |
+
+## Lo que ya llegó
+
+| Qué | Dónde |
+|---|---|
+| `VaultVulnerable.sol` y sus tests (Clases 6–7) | `ethereum/src/`, `ethereum/test/VaultVulnerable.t.sol` |
+| halmos sobre el vault vulnerable (Clases 6–7) | `ethereum/test/halmos/`, se corre con `halmos` desde `ethereum/` |
+
+La versión **arreglada** del vault no se publica: la escribís vos en el taller de la Clase 7.
+
+halmos viene en la imagen a partir de esta versión: para tenerlo hay que **reconstruirla**
+(`./scripts/build-image.sh`); montar el clon actualizado no alcanza.
 
 ## Por qué no está todo desde el día 1
 
@@ -46,7 +56,7 @@ llegue material nuevo tenés dos opciones:
   herramientas ya están adentro, sólo cambia el material.
 
 > La validación del build (`forge test`, `aiken check`) usa los tests que existan
-> en ese momento. Hoy la línea base es **11 tests en Ethereum** y **7 en Cardano**;
+> en ese momento. Hoy la línea base es **14 tests en Ethereum** y **7 en Cardano**;
 > con el material nuevo esos números suben.
 
 ## Lo que se escribe en clase, no se agrega después

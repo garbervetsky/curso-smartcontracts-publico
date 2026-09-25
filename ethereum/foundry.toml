@@ -3,6 +3,13 @@ src = "src"
 out = "out"
 libs = ["lib"]
 solc_version = "0.8.26"
+# test/halmos/ se corre con `halmos`, no con `forge test`: contra el vault
+# vulnerable el invariante falla a proposito.
+no_match_path = "test/halmos/*"
+# Sin esto, forge >= 1.8 compila los `new X()` de los tests como vm.deployCode(...),
+# que halmos no soporta ("Unsupported cheat code: deployCode(string)"), y
+# --gas-report muestra el costo de deploy en 0. La 1.7.1 lo acepta y no cambia nada.
+dynamic_test_linking = false
 
 # Fuzzing / invariantes (se usan en las Clases 6 y 7)
 [fuzz]

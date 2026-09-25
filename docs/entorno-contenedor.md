@@ -31,7 +31,7 @@ cd curso-smartcontracts/
 ./scripts/build-image.sh amd64     # la de los labs
 ./scripts/build-image.sh arm64     # la de tu Mac
 ./scripts/build-image.sh both
-FULL=1 ./scripts/build-image.sh amd64   # + Aderyn, Medusa, halmos, Chromium
+FULL=1 ./scripts/build-image.sh amd64   # + Aderyn, Medusa, Chromium
 ```
 
 O a mano:
@@ -86,7 +86,6 @@ export PATH="/opt/podman/bin:$PATH"   # agregalo a ~/.zshrc para que quede fijo
 podman build -t curso-sc:full \
   --build-arg INSTALL_ADERYN=true \
   --build-arg INSTALL_MEDUSA=true \
-  --build-arg INSTALL_HALMOS=true \
   --build-arg INSTALL_CHROMIUM=true \
   .
 ```
@@ -95,7 +94,6 @@ podman build -t curso-sc:full \
 |---|---|---|
 | `INSTALL_ADERYN` | analizador estático alternativo (Rust, Cyfrin) | 6 |
 | `INSTALL_MEDUSA` | fuzzer guiado por cobertura (Trail of Bits) | 6 |
-| `INSTALL_HALMOS` | testing simbólico sobre tests de Foundry | 6 |
 | `INSTALL_CHROMIUM` | **sólo** si querés exportar slides a PDF/PPTX desde el contenedor | todas |
 
 > Para **dar la clase** no hace falta Chromium: el modo servidor de Marp sirve HTML.
@@ -134,8 +132,9 @@ podman run -it --rm curso-sc:amd64
 Te deja adentro, en `/curso`, con todo listo. Probá que anda:
 
 ```bash
-cd ethereum && forge test        # → 23 passed + 4 failed (los 4 son la ACTIVIDAD de la Clase 3)
-cd ethereum && forge test --no-match-contract AlcanciaTest   # → 23 passed, 0 failed (línea base)
+cd ethereum && forge test        # → 15 passed + 4 failed (los 4 son la ACTIVIDAD de la Clase 3)
+cd ethereum && forge test --no-match-contract AlcanciaTest   # → 14 passed, 0 failed (línea base)
+cd ethereum && halmos            # → 1 PASS + 1 FAIL (el FAIL es el vault vulnerable, a propósito)
 cd ../cardano && aiken check                     # → 7 passed + 5 failed (el TALLER de la Clase 5)
 cd ../cardano && aiken check -m claim -m cancel  # → 7 passed, 0 failed (línea base)
 ```
@@ -200,6 +199,7 @@ Desde otra terminal, dentro del contenedor o desde el host, apuntás a
 | **Foundry** (`forge`, `anvil`, `cast`) | 2, 3, 6, 7 | `cd ethereum && forge test -vv` |
 | **solc + SMTChecker** (`z3` en amd64, **Eldarica** en arm64) | 6, 7 | `forge build --force` con el bloque `model_checker` |
 | **Slither** | 6, 7 | `cd ethereum && slither src/Vault.sol` |
+| **halmos** (con `z3`) | 6, 7 | `cd ethereum && halmos` (1 PASS, 1 FAIL a propósito) |
 | **Aiken** (+ stdlib cacheado) | 4, 5, 8, 9 | `cd cardano && aiken check` |
 | **Node + Marp** | todas | `marp -s docs/slides` |
 | **Material completo** | todas | guiones, decks, código de ambos tracks |
@@ -325,11 +325,11 @@ podman run --rm curso-sc:arm64 bash -lc '
 '
 ```
 
-Salida esperada (**verificada en `arm64`**, imagen del 2026-08-11):
+Salida esperada (**verificada en `arm64`** el 2026-09-24, forge 1.7.1):
 
 ```text
-Ran 2 test suites: 15 tests passed, 0 failed, 0 skipped (15 total tests)
-Ran 3 test suites: 16 tests passed, 4 failed, 0 skipped (20 total tests)
+Ran 4 test suites: 14 tests passed, 0 failed, 0 skipped (14 total tests)
+Ran 5 test suites: 15 tests passed, 4 failed, 0 skipped (19 total tests)
 "passed": 7
 ```
 
@@ -337,8 +337,8 @@ Cómo leer esos tres números:
 
 | Comando | Qué mide |
 |---|---|
-| `forge test --no-match-contract AlcanciaTest` | **la línea base**: 13 de `Vault.t.sol` + 2 de `VaultInvariant.t.sol`. Tiene que dar **15 / 0**. |
-| `forge test` | todo, incluida la actividad de la Clase 3: 15 + el test modelo de `Alcancia` = **16 passed**, y **4 failed**. |
+| `forge test --no-match-contract AlcanciaTest` | **la línea base**: 11 de `Vault.t.sol` + 3 de `VaultVulnerable.t.sol`. Tiene que dar **14 / 0**. |
+| `forge test` | todo, incluida la actividad de la Clase 3: 14 + el test modelo de `Alcancia` = **15 passed**, y **4 failed**. |
 | `aiken check -m claim -m cancel` | **la línea base de Cardano**: los **7** tests de `escrow.ak`. Tiene que dar **7 / 0**. |
 | `aiken check` | todo, incluido el taller de la Clase 5: 7 passed y **5 failed** (`vesting.ak`). |
 

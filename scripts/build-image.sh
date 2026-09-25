@@ -4,7 +4,7 @@
 #   ./scripts/build-image.sh amd64     # labs Intel  (el target de clase)
 #   ./scripts/build-image.sh arm64     # Apple Silicon (preparar/demos locales)
 #   ./scripts/build-image.sh both
-#   FULL=1 ./scripts/build-image.sh amd64    # + Aderyn, Medusa, halmos, Chromium
+#   FULL=1 ./scripts/build-image.sh amd64    # + Aderyn, Medusa, Chromium
 #
 # Notas:
 #  - amd64 sobre Apple Silicon se construye por EMULACIÓN: anda, pero es lento.
@@ -33,7 +33,6 @@ EXTRA=()
 if [ "${FULL:-0}" = "1" ]; then
     EXTRA=(--build-arg INSTALL_ADERYN=true
            --build-arg INSTALL_MEDUSA=true
-           --build-arg INSTALL_HALMOS=true
            --build-arg INSTALL_CHROMIUM=true)
 fi
 

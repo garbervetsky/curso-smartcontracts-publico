@@ -2,8 +2,8 @@
 
 Proyecto compartido por las clases de Ethereum (2, 3, 6, 7).
 
-> El material de las Clases 6 y 7 (`VaultVulnerable.sol`, `VaultFixed.sol` y sus tests) **se
-> agrega durante el curso**. Ver `PROXIMAS-CLASES.md` en la raíz.
+> Para la Clase 7 ya están `VaultVulnerable.sol`, sus tests y `test/halmos/`. La versión
+> arreglada la escribís vos en el taller. Ver `PROXIMAS-CLASES.md` en la raíz.
 
 ## Estado verificado
 
@@ -13,7 +13,7 @@ Proyecto compartido por las clases de Ethereum (2, 3, 6, 7).
 | `forge-std` | v1.16.1 | ✅ en `lib/forge-std/` (submódulo git) |
 
 `forge build` compila sin errores. `forge test --no-match-contract AlcanciaTest` deja la línea
-base en verde: **11 tests** de `Vault.t.sol`.
+base en verde: **14 tests**, los 11 de `Vault.t.sol` y los 3 de `VaultVulnerable.t.sol`.
 
 ## Instalación paso a paso
 
