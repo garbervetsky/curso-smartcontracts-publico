@@ -143,6 +143,21 @@ y se agrega a medida que avanza el curso. Ver **`PROXIMAS-CLASES.md`**.
 cd cardano/offchain && npm install && npm run demo    # …y transacciones de verdad
 ```
 
+## Taller de análisis (Clase 7)
+
+Explotar el `VaultVulnerable`, escribir el fix y verificarlo. Las consignas están en
+[`ethereum/README.md`](ethereum/README.md#taller-de-la-clase-7).
+
+```bash
+cd ethereum
+slither src/VaultVulnerable.sol                               # análisis estático
+forge test --match-path test/VaultVulnerable.t.sol -vvv       # los PoCs
+halmos --contract VaultVulnerableHalmos                       # la solvencia, verificada
+```
+
+`halmos` viene en la imagen a partir de la versión que lo agregó: si tu imagen es anterior,
+reconstruila (paso 2).
+
 ## Mantenerse al día
 
 Las slides y el material de las clases de análisis se van sumando. Antes de cada clase:

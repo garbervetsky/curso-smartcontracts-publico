@@ -3,7 +3,8 @@
 Proyecto compartido por las clases de Ethereum (2, 3, 6, 7).
 
 > Para la Clase 7 ya están `VaultVulnerable.sol`, sus tests y `test/halmos/`. La versión
-> arreglada la escribís vos en el taller. Ver `PROXIMAS-CLASES.md` en la raíz.
+> arreglada la escribís vos en el taller: ver [Taller de la Clase 7](#taller-de-la-clase-7) más
+> abajo, y `PROXIMAS-CLASES.md` en la raíz.
 
 ## Estado verificado
 
@@ -11,6 +12,7 @@ Proyecto compartido por las clases de Ethereum (2, 3, 6, 7).
 |-------------|---------|--------|
 | `forge` / `anvil` | 1.7.1 | ✅ instalado |
 | `forge-std` | v1.16.1 | ✅ en `lib/forge-std/` (submódulo git) |
+| `halmos` | 0.3.3 | ✅ en la imagen (Clase 7) |
 
 `forge build` compila sin errores. `forge test --no-match-contract AlcanciaTest` deja la línea
 base en verde: **14 tests**, los 11 de `Vault.t.sol` y los 3 de `VaultVulnerable.t.sol`.
@@ -22,8 +24,11 @@ base en verde: **14 tests**, los 11 de `Vault.t.sol` y los 3 de `VaultVulnerable
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
 # recargar el shell o abrir una terminal nueva, luego:
-foundryup
+foundryup --install v1.7.1   # la versión del curso (la misma que trae la imagen)
 ```
+
+Si ya tenés una 1.8 o posterior, también anda: la línea base da lo mismo y `halmos` funciona
+(verificado con la 1.8.3).
 
 Verificar:
 
@@ -75,14 +80,74 @@ forge test -vvv                        # también muestra traces de ejecución
 forge test --match-test test_Withdraw  # filtrar por nombre
 forge test --fuzz-runs 1000            # más iteraciones de fuzzing (Clase 6/7)
 anvil                                  # nodo local para deploy (Clase 3)
+halmos                                 # verificación simbólica de test/halmos/ (Clase 7)
 ```
+
+`halmos` viene en la imagen del curso. Fuera del contenedor: `pipx install halmos`.
 
 ## Contenido
 
-- `src/Vault.sol` — se construye en la Clase 3 y se audita/explota en la Clase 7.
-  **`withdrawAll()` está sin implementar**: es parte del taller.
+- `src/Vault.sol` — se construye en la Clase 3 (`withdrawAll()` se escribió en vivo en clase) y
+  es la versión correcta con la que se compara el vulnerable en la Clase 7.
+- `src/VaultVulnerable.sol` — el Vault con bugs a propósito, para el taller de la Clase 7.
+- `test/VaultVulnerable.t.sol` — los PoCs de explotación y el invariante de solvencia (Clase 7).
+- `test/halmos/VaultHalmos.t.sol` — la solvencia, verificada con `halmos` (Clase 7). `forge test`
+  no lo corre.
 - `src/Alcancia.sol` — la **actividad** de la Clase 3: `retirar()` está sin implementar.
 - `test/Vault.t.sol` — tests de Foundry (Clase 3). **Le faltan los dos de `withdrawAll`**: se
   escriben en clase.
 - `test/Alcancia.t.sol` — 1 test modelo + 4 consignas en rojo, para la actividad.
 - `foundry.lock` — lock file de dependencias (commitear junto con `.gitmodules`).
+
+## Taller de la Clase 7
+
+**Entregable, en pares: un reporte corto de hallazgos y un fix verificado.** Todo se corre desde
+`ethereum/`. Para `halmos` hace falta la imagen reconstruida después de este cambio
+(`./scripts/build-image.sh`).
+
+1. **Análisis estático y triage.** Correr `slither src/VaultVulnerable.sol` y clasificar cada
+   hallazgo como real o ruido, con una frase que lo justifique. Después correr
+   `slither src/VaultVulnerable.sol --print vars-and-auth`: ¿qué fila delata un bug que el triage
+   de los hallazgos no encontró?
+
+2. **Los PoCs.** Correr `forge test --match-path test/VaultVulnerable.t.sol -vvv` y leer los
+   traces. En el de la reentrancy, contar las llamadas anidadas a `withdraw`.
+
+3. **Invariantes y halmos.** En `test/VaultVulnerable.t.sol`, descomentar el `assertGe` de
+   `invariant_solvency_DEMO` y correr
+   `forge test --match-contract VaultVulnerableInvariantTest -vv`. ¿El fuzzer rompe la
+   solvencia? ¿A cuántas llamadas reduce la secuencia? Volver a comentarlo al terminar. Después
+   correr `halmos --contract VaultVulnerableHalmos`: ¿qué secuencia devuelve? ¿Qué afirma ese
+   `FAIL` que no afirmaba el del fuzzer?
+
+4. **Dos hallazgos**, uno por bug, con este formato:
+
+   ```markdown
+   ## [SEVERIDAD] Título corto
+
+   **Ubicación:** archivo y líneas
+   **Descripción:** qué está mal y por qué es explotable
+   **Impacto:** qué se pierde, cuantificado
+   **Prueba de concepto:** el test que lo demuestra
+   **Recomendación:** el cambio concreto
+   **Estado:** dónde está corregido y qué test lo verifica
+   ```
+
+5. **El fix, escrito por ustedes.** Copiar `src/VaultVulnerable.sol` a `src/MiVaultFixed.sol`,
+   renombrar el contrato a `MiVaultFixed` y arreglar los dos bugs. La reentrancy, **sólo con
+   checks-effects-interactions**, sin reentrancy guard. Conservar `deposit()` y `withdraw()` con
+   la misma firma. Verificarlo dos veces:
+   - **Con halmos.** Al final de `test/halmos/VaultHalmos.t.sol`, agregar un contrato igual a
+     `VaultVulnerableHalmos` que despliegue `MiVaultFixed`. El nombre tiene que terminar en
+     `Halmos` (si no, `halmos` no lo corre). `halmos --contract <ese nombre>` tiene que dar
+     `[PASS]`; probarlo también con `--invariant-depth 4`.
+   - **Con un PoC**, en `test/MiVaultFixed.t.sol`: el atacante de `VaultVulnerable.t.sol`
+     apuntado a su contrato, en un test que espere que el ataque revierta y que el Vault conserve
+     los fondos. Y otro test en el que alguien que no es admin intente `setAdmin`.
+
+   Discutir: si CEI solo pasa las dos verificaciones, ¿para qué agregaría alguien además un
+   reentrancy guard?
+
+6. **Opcional: un LLM como auditor.** Pedirle una auditoría de `VaultVulnerable.sol`. ¿Encuentra
+   los dos bugs? ¿Inventa alguno que no existe? Confirmar o descartar **cada** hallazgo con un
+   test.
