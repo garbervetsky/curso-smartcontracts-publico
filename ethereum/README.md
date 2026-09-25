@@ -77,7 +77,8 @@ tests de la actividad de la Clase 3, que se completan durante el taller.
 ```bash
 forge build                            # compilar
 forge test -vv                         # correr tests (con nombres y logs)
-forge test -vvv                        # también muestra traces de ejecución
+forge test -vvv                        # + traces de los tests que FALLAN
+forge test -vvvv                       # + traces de todos, también los que pasan
 forge test --match-test test_Withdraw  # filtrar por nombre
 forge test --fuzz-runs 1000            # más iteraciones de fuzzing (Clase 6/7)
 anvil                                  # nodo local para deploy (Clase 3)
@@ -116,7 +117,8 @@ halmos                                 # verificación simbólica de test/halmos
    y los dos tests (`test_Reentrancy_DrenaElVault` y
    `test_AccessControl_ExtranioSeQuedaConLosFondos`), cada uno según la consigna de su
    comentario, y borrarles el `vm.skip(true)`. Correr
-   `forge test --match-path test/VaultVulnerable.t.sol -vvv` y leer los traces. En el de la
+   `forge test --match-path test/VaultVulnerable.t.sol -vvvv` y leer los traces (con `-vvv` no
+   salen: forge sólo muestra la traza de los tests que fallan). En el de la
    reentrancy, contar las llamadas anidadas a `withdraw`.
 
 3. **Invariantes y halmos.** Con su atacante andando, descomentar el `assertGe` de

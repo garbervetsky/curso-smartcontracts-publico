@@ -151,7 +151,7 @@ consignas están en [`ethereum/README.md`](ethereum/README.md#taller-de-la-clase
 ```bash
 cd ethereum
 slither src/VaultVulnerable.sol                               # análisis estático
-forge test --match-path test/VaultVulnerable.t.sol -vvv       # sus PoCs (arrancan en SKIP)
+forge test --match-path test/VaultVulnerable.t.sol -vvvv      # sus PoCs (arrancan en SKIP)
 halmos --contract VaultVulnerableHalmos                       # la solvencia, con halmos
 ```
 
