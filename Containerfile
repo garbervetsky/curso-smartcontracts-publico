@@ -184,11 +184,13 @@ WORKDIR /curso
 # Si esto falla, la imagen NO se construye: es la verificación de que sirve.
 #
 # Se excluye AlcanciaTest: son los tests de la ACTIVIDAD de la Clase 3, que
-# arrancan en rojo a propósito (el alumno los completa). La línea base son 14
-# tests (11 de `Vault.t.sol`, 3 de `VaultVulnerable.t.sol`); ésos sí tienen que
-# pasar para que la imagen se construya. test/halmos/ no entra: lo excluye
-# `no_match_path` en foundry.toml, y se corre con `halmos`. (No están los de `withdrawAll` ni los de invariantes: se escriben
-# en clase — ver PROXIMAS-CLASES.md.)
+# arrancan en rojo a propósito (el alumno los completa). La línea base son 12
+# tests (11 de `Vault.t.sol` y el invariante de `VaultVulnerable.t.sol`); ésos sí
+# tienen que pasar para que la imagen se construya. Los 2 PoCs de
+# `VaultVulnerable.t.sol` son el taller de la Clase 7: arrancan con vm.skip, así
+# que salen como skipped y no rompen el build. test/halmos/ no entra: lo excluye
+# `no_match_path` en foundry.toml, y se corre con `halmos`. (Tampoco están los
+# dos tests de `withdrawAll`: se escriben en clase — ver PROXIMAS-CLASES.md.)
 #
 # Cuando se agregue el material de las Clases 6-9 (ver PROXIMAS-CLASES.md), ese
 # número sube. Actualizalo acá si lo cambiás, pero no hace falta: el `forge test`

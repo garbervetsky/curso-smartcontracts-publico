@@ -8,7 +8,8 @@ pragma solidity ^0.8.26;
 // los contratos *Halmos de este archivo; los dos tardan ~1 s):
 //
 //     halmos                                      # los dos
-//     halmos --contract VaultVulnerableHalmos     # FAIL + contraejemplo
+//     halmos --contract VaultVulnerableHalmos     # FAIL + contraejemplo, cuando
+//                                                 # AtacanteUnaVez este completo
 //     halmos --contract VaultVulnerableHalmos --invariant-depth 4
 //
 // El fuzzer de VaultVulnerable.t.sol prueba secuencias al azar; halmos
@@ -20,12 +21,8 @@ pragma solidity ^0.8.26;
 // vault vulnerable el invariante falla a proposito, y la suite tiene que quedar
 // en verde.
 //
-// Por que un atacante y un handler propios, y no los de VaultVulnerable.t.sol:
-// aquel atacante re-entra en un loop mientras quede ETH, y con montos
-// simbolicos la cantidad de vueltas tambien es simbolica; halmos abre un camino
-// por cada una y no termina. Para romper la solvencia alcanza con re-entrar una
-// vez. Por lo mismo se usa vm.assume y no bound(): bound() mete un modulo que
-// al solver le cuesta mucho mas.
+// El handler usa vm.assume y no bound(): bound() mete un modulo que al solver
+// le cuesta mucho mas.
 
 import "forge-std/Test.sol";
 import "../../src/Vault.sol";
@@ -37,25 +34,28 @@ interface IVault {
     function withdraw() external;
 }
 
-// Re-entra una sola vez.
+// TODO (consigna 3): un atacante como el tuyo de VaultVulnerable.t.sol, pero
+// que vuelva a entrar al vault UNA sola vez.
+//
+// Por que no sirve el tuyo tal cual: si repite el ataque mientras quede ETH,
+// con montos simbolicos la cantidad de vueltas tambien es simbolica; halmos
+// abre un camino por cada una y no termina. Para romper la solvencia alcanza
+// con una.
+//
+// Mientras este vacio, halmos da PASS tambien contra el vulnerable: el handler
+// solo sabe depositar, y eso no rompe nada. Un PASS dice "ninguna secuencia de
+// lo que el handler sabe hacer rompe la propiedad", nada mas.
 contract AtacanteUnaVez {
     IVault public vault;
-    bool entro;
 
     constructor(IVault _vault) {
         vault = _vault;
     }
 
     function attack() external payable {
-        vault.deposit{value: msg.value}();
-        vault.withdraw();
     }
 
     receive() external payable {
-        if (!entro) {
-            entro = true;
-            vault.withdraw();
-        }
     }
 }
 

@@ -95,7 +95,7 @@ docker run -it --rm -u root --name curso --network="host" -v "$PWD":/curso:z elN
 ### 3. Verificar que quedó bien
 
 ```bash
-cd /curso/ethereum && forge test --no-match-contract AlcanciaTest    # 14 tests en verde
+cd /curso/ethereum && forge test --no-match-contract AlcanciaTest    # 12 en verde y 2 SKIP (el taller de la Clase 7)
 cd /curso/cardano  && aiken check -m claim -m cancel                 # 7 tests en verde
 ```
 
@@ -145,14 +145,14 @@ cd cardano/offchain && npm install && npm run demo    # …y transacciones de ve
 
 ## Taller de análisis (Clase 7)
 
-Explotar el `VaultVulnerable`, escribir el fix y verificarlo. Las consignas están en
-[`ethereum/README.md`](ethereum/README.md#taller-de-la-clase-7).
+Encontrar los bugs del `VaultVulnerable`, escribir el exploit y el fix, y verificarlos. Las
+consignas están en [`ethereum/README.md`](ethereum/README.md#taller-de-la-clase-7).
 
 ```bash
 cd ethereum
 slither src/VaultVulnerable.sol                               # análisis estático
-forge test --match-path test/VaultVulnerable.t.sol -vvv       # los PoCs
-halmos --contract VaultVulnerableHalmos                       # la solvencia, verificada
+forge test --match-path test/VaultVulnerable.t.sol -vvv       # sus PoCs (arrancan en SKIP)
+halmos --contract VaultVulnerableHalmos                       # la solvencia, con halmos
 ```
 
 `halmos` viene en la imagen a partir de la versión que lo agregó: si tu imagen es anterior,

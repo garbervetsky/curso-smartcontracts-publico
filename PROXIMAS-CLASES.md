@@ -22,7 +22,7 @@ git pull
 
 | Qué | Dónde |
 |---|---|
-| `VaultVulnerable.sol` y sus tests (Clases 6–7) | `ethereum/src/`, `ethereum/test/VaultVulnerable.t.sol` |
+| `VaultVulnerable.sol` y sus tests (Clases 6–7) — el atacante y los PoCs, sin escribir | `ethereum/src/`, `ethereum/test/VaultVulnerable.t.sol` |
 | halmos sobre el vault vulnerable (Clases 6–7) | `ethereum/test/halmos/`, se corre con `halmos` desde `ethereum/` |
 
 Las versiones **arregladas** (del vault y del escrow) no se publican: las escribís vos en los
@@ -57,13 +57,13 @@ llegue material nuevo tenés dos opciones:
   herramientas ya están adentro, sólo cambia el material.
 
 > La validación del build (`forge test`, `aiken check`) usa los tests que existan
-> en ese momento. Hoy la línea base es **14 tests en Ethereum** y **7 en Cardano**;
+> en ese momento. Hoy la línea base es **12 tests en Ethereum (y 2 en SKIP)** y **7 en Cardano**;
 > con el material nuevo esos números suben.
 
 ## Lo que se escribe en clase, no se agrega después
 
 Distinto de lo de arriba: esto **no va a llegar por `git pull`** — lo escribís vos
-durante el taller de la Clase 3. Están en el repo como **TODO**, con la consigna en el comentario:
+durante los talleres. Están en el repo como **TODO**, con la consigna en el comentario:
 
 | Dónde | Qué falta |
 |---|---|
@@ -71,3 +71,6 @@ durante el taller de la Clase 3. Están en el repo como **TODO**, con la consign
 | `ethereum/test/Vault.t.sol` | los **dos** tests de `withdrawAll` (el camino feliz y el borde) |
 | `ethereum/src/Alcancia.sol` | `retirar()` — es la actividad de cierre |
 | `ethereum/test/Alcancia.t.sol` | 4 tests de la `Alcancia`, que arrancan en rojo |
+| `ethereum/test/VaultVulnerable.t.sol` | Clase 7: `ReentrancyAttacker` y los dos PoCs, que arrancan en SKIP |
+| `ethereum/test/halmos/VaultHalmos.t.sol` | Clase 7: `AtacanteUnaVez` |
+| `ethereum/src/MiVaultFixed.sol` | Clase 7: el fix, desde cero (no existe todavía) |
