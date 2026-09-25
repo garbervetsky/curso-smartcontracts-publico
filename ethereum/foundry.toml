@@ -26,9 +26,16 @@ depth = 50
 # Los `show_*` son necesarios: sin ellos solc dice "4 unsupported language
 # feature(s)" pero no dice cuales, y esa es justo la explicacion del falso positivo.
 #
+# Los DOS solvers a propósito, y el orden importa poco: solc usa el que encuentre.
+# En amd64 (labs, y macOS) usa z3, que da el CONTRAEJEMPLO concreto (`amount = 1`).
+# En arm64 el solc de aarch64 se compila SIN z3 (0 símbolos: instalar libz3 no
+# sirve de nada), así que cae en Eldarica, que la imagen arm64 hornea como `eld`.
+# Sin esta línea solc elige z3 y en arm64 el análisis NO CORRE: se ve como
+# "Warning (7649): CHC analysis was not possible since no Horn solver was found".
 # [profile.default.model_checker]
 # contracts        = { "src/Vault.sol" = ["Vault"] }
 # engine           = "chc"                          # chc (no acotado) o bmc (acotado)
+# solvers          = ["z3", "eld"]
 # targets          = ["assert", "overflow", "underflow", "divByZero"]
 # timeout          = 20000                          # ms por consulta
 # show_unsupported = true                           # que features del lenguaje NO modela

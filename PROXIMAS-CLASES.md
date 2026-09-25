@@ -16,7 +16,6 @@ git pull
 |---|---|---|
 | **Clase 6** | `VaultInvariant.t.sol` — tests de invariantes | `ethereum/test/` |
 | **Clases 8–9** | `escrow_vulnerable.ak` | `cardano/validators/` |
-| **Clases 8–9** | `escrow_fixed.ak` | `cardano/validators/` |
 | **Cada clase** | Las slides | `docs/slides/clase-NN/slides.md` |
 
 ## Lo que ya llegó
@@ -26,16 +25,18 @@ git pull
 | `VaultVulnerable.sol` y sus tests (Clases 6–7) | `ethereum/src/`, `ethereum/test/VaultVulnerable.t.sol` |
 | halmos sobre el vault vulnerable (Clases 6–7) | `ethereum/test/halmos/`, se corre con `halmos` desde `ethereum/` |
 
-La versión **arreglada** del vault no se publica: la escribís vos en el taller de la Clase 7.
+Las versiones **arregladas** (del vault y del escrow) no se publican: las escribís vos en los
+talleres de las Clases 7 y 9.
 
 halmos viene en la imagen a partir de esta versión: para tenerlo hay que **reconstruirla**
 (`./scripts/build-image.sh`); montar el clon actualizado no alcanza.
 
 ## Por qué no está todo desde el día 1
 
-Las versiones `_vulnerable` y `_fixed` **son** el ejercicio de las Clases 6 a 9:
-una tiene el bug que hay que encontrar, la otra es la respuesta. Tenerlas a mano
-desde el principio convierte un taller de análisis en una lectura.
+Las versiones `_vulnerable` **son** el ejercicio de las Clases 6 a 9, y las
+arregladas son la respuesta: por eso las primeras llegan cuando llega su clase y las
+segundas no se publican. Tenerlas a mano desde el principio convierte un taller de
+análisis en una lectura.
 
 El caso base sí está completo desde ahora — `Vault.sol` y `escrow.ak` son el punto
 de partida de todo lo demás.
@@ -66,7 +67,7 @@ durante el taller de la Clase 3. Están en el repo como **TODO**, con la consign
 
 | Dónde | Qué falta |
 |---|---|
-| `ethereum/src/Vault.sol` | `withdrawAll()` — el cuerpo está vacío |
+| `ethereum/src/Vault.sol` | `withdrawAll()` — ya está: se escribió en vivo en la Clase 3 |
 | `ethereum/test/Vault.t.sol` | los **dos** tests de `withdrawAll` (el camino feliz y el borde) |
 | `ethereum/src/Alcancia.sol` | `retirar()` — es la actividad de cierre |
 | `ethereum/test/Alcancia.t.sol` | 4 tests de la `Alcancia`, que arrancan en rojo |
