@@ -74,12 +74,12 @@ Y para entrar:
 
 (si tenes arm)
 ```bash
-podman run -it --rm --userns=keep-id -v "$PWD":/curso:z curso-sc:arm64
+podman run -it --rm -u root -v "$PWD":/curso:z curso-sc:arm64
 ```
 
 (si tenes amd64)
 ```bash
-podman run -it --rm --userns=keep-id -v "$PWD":/curso:z curso-sc:amd64
+podman run -it --rm -u root -v "$PWD":/curso:z curso-sc:amd64
 ```
 
 
