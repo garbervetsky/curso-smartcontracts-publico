@@ -64,7 +64,14 @@ contract VaultVulnerableReentrancyTest is Test {
     // cuanto tiene el atacante, y que el libro contable (`balanceOf`) sigue
     // diciendo que las victimas tienen su saldo.
     function test_Reentrancy_DrenaElVault() public {
-        vm.skip(true);   // borrar cuando lo escribas
+        // Setup: dos víctimas depositaron 5 ETH cada una. El vault tiene 10.
+        assertEq(address(vault).balance, 10 ether);
+        ReentrancyAttacker attacker = new ReentrancyAttacker(vault);
+        vm.deal(attackerOwner, 1 ether);
+        vm.prank(attackerOwner);
+        attacker.attack{value: 1 ether}(); // invierte 1 ETH
+        assertEq(address(vault).balance, 0); // vault vacío
+        assertEq(address(attacker).balance, 11 ether); // 1 propio + 10 robados
     }
 }
 
