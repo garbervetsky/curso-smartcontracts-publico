@@ -13,7 +13,9 @@
    y los dos tests (`test_Reentrancy_DrenaElVault` y
    `test_AccessControl_ExtranioSeQuedaConLosFondos`), cada uno según la consigna de su
    comentario, y borrarles el `vm.skip(true)`. Correr
-   `forge test --match-path test/VaultVulnerable.t.sol -vvvv` y leer los traces (con `-vvv` no
+   `forge test --match-test test_Reentrancy_DrenaElVault -vvvv` y 
+   `forge test --match-test test_AccessControl_ExtranioSeQuedaConLosFondos -vvvv`
+    y leer los traces (con `-vvv` no
    salen: forge sólo muestra la traza de los tests que fallan). En el de la
    reentrancy, contar las llamadas anidadas a `withdraw`.
 
