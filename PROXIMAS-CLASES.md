@@ -15,7 +15,6 @@ git pull
 | Cuándo | Qué se agrega | Dónde va a aparecer |
 |---|---|---|
 | **Clase 6** | `VaultInvariant.t.sol` — tests de invariantes | `ethereum/test/` |
-| **Clases 8–9** | `escrow_vulnerable.ak` | `cardano/validators/` |
 | **Cada clase** | Las slides | `docs/slides/clase-NN/slides.md` |
 
 ## Lo que ya llegó
@@ -24,12 +23,16 @@ git pull
 |---|---|
 | `VaultVulnerable.sol` y sus tests (Clases 6–7) — el atacante y los PoCs, sin escribir | `ethereum/src/`, `ethereum/test/VaultVulnerable.t.sol` |
 | halmos sobre el vault vulnerable (Clases 6–7) | `ethereum/test/halmos/`, se corre con `halmos` desde `ethereum/` |
+| `escrow_vulnerable.ak` (Clases 8–9) — el escrow double-satisfiable, con el test que lo demuestra | `cardano/validators/` |
+| `vesting_vulnerable.ak` (Clase 9) — el vesting versión 2; los PoCs y las propiedades, sin escribir | `cardano/validators/`, consignas en `cardano/Taller-Clase9.md` |
 
-Las versiones **arregladas** (del vault y del escrow) no se publican: las escribís vos en los
-talleres de las Clases 7 y 9.
+Las versiones **arregladas** (del vault, del escrow y del vesting) no se publican: las escribís
+vos en los talleres de las Clases 7 y 9.
 
-halmos viene en la imagen a partir de esta versión: para tenerlo hay que **reconstruirla**
-(`./scripts/build-image.sh`); montar el clon actualizado no alcanza.
+halmos viene en la imagen a partir de la versión que lo agregó, y `aiken-lang/fuzz` (los
+generadores de los property tests) a partir de la que trajo la Clase 9: para tenerlos hay que
+**reconstruirla** (`./scripts/build-image.sh`); montar el clon actualizado no alcanza. Con `fuzz`
+hay una salida: el primer `aiken check` lo baja de GitHub si hay red.
 
 ## Por qué no está todo desde el día 1
 
@@ -57,7 +60,7 @@ llegue material nuevo tenés dos opciones:
   herramientas ya están adentro, sólo cambia el material.
 
 > La validación del build (`forge test`, `aiken check`) usa los tests que existan
-> en ese momento. Hoy la línea base es **12 tests en Ethereum (y 2 en SKIP)** y **7 en Cardano**;
+> en ese momento. Hoy la línea base es **12 tests en Ethereum (y 2 en SKIP)** y **14 en Cardano**;
 > con el material nuevo esos números suben.
 
 ## Lo que se escribe en clase, no se agrega después
@@ -74,3 +77,6 @@ durante los talleres. Están en el repo como **TODO**, con la consigna en el com
 | `ethereum/test/VaultVulnerable.t.sol` | Clase 7: `ReentrancyAttacker` y los dos PoCs, que arrancan en SKIP |
 | `ethereum/test/halmos/VaultHalmos.t.sol` | Clase 7: `AtacanteUnaVez` |
 | `ethereum/src/MiVaultFixed.sol` | Clase 7: el fix, desde cero (no existe todavía) |
+| `cardano/validators/vesting.ak` | Clase 5: `can_unlock`; sus 5 tests arrancan en rojo |
+| `cardano/validators/vesting_vulnerable.ak` | Clase 9: los dos `poc_*` y las dos `prop_*`, que arrancan en rojo (`todo`) |
+| `cardano/validators/mi_vesting_fixed.ak` | Clase 9: el fix, desde cero (no existe todavía) |

@@ -2,8 +2,9 @@
 
 Proyecto compartido por las clases de Cardano (4, 5, 8, 9).
 
-> El material de las Clases 8 y 9 (`escrow_vulnerable.ak`, `escrow_fixed.ak`) **se agrega durante
-> el curso**. Ver `PROXIMAS-CLASES.md` en la raíz.
+> Para la Clase 9 ya están `escrow_vulnerable.ak` y `vesting_vulnerable.ak`. La versión arreglada
+> la escribís vos en el taller: ver [Taller de la Clase 9](Taller-Clase9.md), y
+> `PROXIMAS-CLASES.md` en la raíz.
 
 ## Estado verificado
 
@@ -11,6 +12,7 @@ Proyecto compartido por las clases de Cardano (4, 5, 8, 9).
 |-------------|----------------|------------------------|
 | `aiken` | v1.1.0 | ✅ v1.1.21 instalado |
 | `aiken-lang/stdlib` | v3.1.0 | ✅ descargado en primer `aiken check` |
+| `aiken-lang/fuzz` | v2.2.0 | ✅ descargado en primer `aiken check` (property tests, Clases 8 y 9) |
 
 ## Instalación paso a paso
 
@@ -38,15 +40,17 @@ cd cardano/
 ### Paso 3 — Verificar que compila y los tests pasan
 
 ```bash
-aiken check -m claim -m cancel
+aiken check -m claim -m cancel -m v2_
 ```
 
-Se filtra a los 7 tests del escrow a propósito: `aiken check` pelado corre **también** los 5
-de `vesting.ak`, que arrancan **en rojo porque son el taller de la Clase 5** (`can_unlock` sin
-implementar). Es lo esperable, no una instalación rota.
+Se filtra a la línea base a propósito: **14 tests** (los 7 del escrow, 2 del escrow vulnerable y
+5 del vesting versión 2). `aiken check` pelado corre **también** lo que arranca **en rojo porque
+es material de taller**: los 5 de `vesting.ak` (Clase 5, `can_unlock` sin implementar) y los 4
+`poc_*`/`prop_*` de `vesting_vulnerable.ak` (Clase 9, son `todo`). Es lo esperable, no una
+instalación rota.
 
-En la primera ejecución descarga `aiken-lang/stdlib` desde GitHub (requiere acceso a internet).
-Las siguientes ejecuciones usan el cache local en `build/`.
+En la primera ejecución descarga `aiken-lang/stdlib` y `aiken-lang/fuzz` desde GitHub (requiere
+acceso a internet). Las siguientes ejecuciones usan el cache local en `build/`.
 
 Salida esperada:
 
@@ -70,9 +74,11 @@ usa para conocer la dirección del validator.
 ## Comandos de uso frecuente
 
 ```bash
-aiken check                      # type-check + TODOS los tests (los 5 de vesting.ak
-                                 # arrancan en rojo: son el taller de la Clase 5)
-aiken check -m claim -m cancel   # sólo los 7 del escrow — la línea base, 7/0
+aiken check                             # type-check + TODOS los tests (los talleres de las
+                                        # Clases 5 y 9 arrancan en rojo)
+aiken check -m claim -m cancel -m v2_   # la línea base, 14/0
+aiken check -m poc_ -m prop_            # el taller de la Clase 9
+aiken check --seed=<n>                  # reproducir una corrida de property tests
 aiken build              # compilar a UPLC y generar plutus.json
 aiken docs               # generar documentacion del proyecto en HTML
 ```
@@ -81,13 +87,19 @@ aiken docs               # generar documentacion del proyecto en HTML
 
 `build/` esta en `.gitignore`. La primera vez que se ejecuta `aiken check` en una
 instalacion fresca, Aiken descarga las dependencias declaradas en `aiken.toml`
-(actualmente `aiken-lang/stdlib`) y las deja en `build/packages/`.
+(`aiken-lang/stdlib` y `aiken-lang/fuzz`) y las deja en `build/packages/`.
 No hace falta ninguna accion adicional.
 
 ## Contenido
 
-- `validators/escrow.ak` — se repasa en la Clase 5 y se audita en la Clase 9.
+- `validators/escrow.ak` — se construye en la Clase 5; su versión vulnerable se analiza en las
+  Clases 8 y 9.
 - `validators/vesting.ak` — el taller de la Clase 5: viene sin implementar, sus tests arrancan en rojo.
+- `validators/escrow_vulnerable.ak` — el escrow que valida el output pero es double-satisfiable,
+  con el test que lo demuestra (Clases 8 y 9).
+- `validators/vesting_vulnerable.ak` — el taller de la Clase 9: el vesting versión 2, con dos bugs.
+  **Los PoCs y las propiedades están sin escribir** (arrancan en rojo).
+- `Taller-Clase9.md` — las consignas del taller de la Clase 9.
 - `offchain/` — off-chain con Mesh: arma y manda **transacciones reales** del escrow
   contra un devnet local. Ver `offchain/README.md`.
 - `aiken.toml` — configuracion del proyecto (nombre, version de Plutus, dependencias).

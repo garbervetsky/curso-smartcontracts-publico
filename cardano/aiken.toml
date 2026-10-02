@@ -16,3 +16,10 @@ platform = "github"
 name = "aiken-lang/stdlib"
 version = "v3.1.0"
 source = "github"
+
+# Generadores para property tests (Clases 8 y 9). La v3.0.0 pide Aiken 1.1.24 y
+# stdlib v4: con v1.1.21 no compila.
+[[dependencies]]
+name = "aiken-lang/fuzz"
+version = "v2.2.0"
+source = "github"

@@ -136,13 +136,16 @@ cd /curso/cardano  && aiken check -m claim -m cancel                 # 7 tests e
 │   ├── src/Alcancia.sol       # La actividad de la Clase 3 (con TODOs)
 │   └── offchain/              # Bonus: Hardhat + ethers + chai
 ├── cardano/                   # Proyecto Aiken
-│   ├── validators/escrow.ak   # Se construye en la Clase 5, se audita en la 9
+│   ├── validators/escrow.ak   # Se construye en la Clase 5, se audita en la 8
+│   ├── validators/vesting_vulnerable.ak  # El taller de la Clase 9 (con TODOs)
+│   ├── Taller-Clase9.md       # Las consignas del taller de la Clase 9
 │   └── offchain/              # Mesh: transacciones reales contra un devnet local
 └── scripts/                   # build-image, devnet, demos, exportar slides
 ```
 
-**Ojo:** el material de las Clases 6 a 9 —las versiones vulnerables y arregladas— **no está todavía**
-y se agrega a medida que avanza el curso. Ver **`PROXIMAS-CLASES.md`**.
+**Ojo:** las versiones **vulnerables** de las Clases 6 a 9 ya están (`VaultVulnerable.sol`,
+`escrow_vulnerable.ak`, `vesting_vulnerable.ak`); las **arregladas** no se publican: se escriben
+en los talleres. Ver **`PROXIMAS-CLASES.md`**.
 
 ## Los dos hilos conductores
 
@@ -171,6 +174,19 @@ halmos --contract VaultVulnerableHalmos                       # la solvencia, co
 
 `halmos` viene en la imagen a partir de la versión que lo agregó: si tu imagen es anterior,
 reconstruila (paso 2).
+
+## Taller de análisis (Clase 9)
+
+Auditar el `vesting_vulnerable`, demostrar sus dos bugs con tests, escribir las propiedades que
+los destapan y el fix. Las consignas están en [`cardano/Taller-Clase9.md`](cardano/Taller-Clase9.md).
+
+```bash
+cd cardano
+aiken check -m v2_                  # lo que anda (5 tests)
+aiken check -m poc_ -m prop_        # los PoCs y las propiedades: los escribís vos (arrancan en rojo)
+```
+
+La primera vez, `aiken check` baja `aiken-lang/fuzz` de GitHub; la imagen reconstruida ya lo trae.
 
 ## Mantenerse al día
 

@@ -135,8 +135,8 @@ Te deja adentro, en `/curso`, con todo listo. Probá que anda:
 cd ethereum && forge test        # → 13 passed + 4 failed + 2 skipped (los 4 son la ACTIVIDAD de la Clase 3)
 cd ethereum && forge test --no-match-contract AlcanciaTest   # → 12 passed, 0 failed, 2 skipped (línea base)
 cd ethereum && halmos            # → 2 PASS (hasta completar el atacante del taller de la Clase 7)
-cd ../cardano && aiken check                     # → 7 passed + 5 failed (el TALLER de la Clase 5)
-cd ../cardano && aiken check -m claim -m cancel  # → 7 passed, 0 failed (línea base)
+cd ../cardano && aiken check                            # → 15 passed + 9 failed (los TALLERES de las Clases 5 y 9)
+cd ../cardano && aiken check -m claim -m cancel -m v2_  # → 14 passed, 0 failed (línea base)
 ```
 
 Las versiones exactas preparadas están en `~/VERSIONES.txt`.
@@ -200,7 +200,7 @@ Desde otra terminal, dentro del contenedor o desde el host, apuntás a
 | **solc + SMTChecker** (`z3` en amd64, **Eldarica** en arm64) | 6, 7 | `forge build --force` con el bloque `model_checker` |
 | **Slither** | 6, 7 | `cd ethereum && slither src/Vault.sol` |
 | **halmos** (con `z3`) | 6, 7 | `cd ethereum && halmos` (2 PASS) |
-| **Aiken** (+ stdlib cacheado) | 4, 5, 8, 9 | `cd cardano && aiken check` |
+| **Aiken** (+ stdlib y `fuzz` cacheados) | 4, 5, 8, 9 | `cd cardano && aiken check -m claim -m cancel -m v2_` |
 | **Node + Marp** | todas | `marp -s docs/slides` |
 | **Material completo** | todas | guiones, decks, código de ambos tracks |
 
@@ -265,24 +265,11 @@ solvers = ["z3", "eld"]   # solc usa el que encuentre: z3 en amd64, eld en arm64
 
 ## 5. Property tests de Aiken (`aiken-lang/fuzz`)
 
-Los property tests de las Clases 5, 8 y 9 están **comentados** en el repo porque requieren la
-dependencia `aiken-lang/fuzz`, que no viene declarada en `aiken.toml`. Para habilitarlos dentro
-del contenedor (requiere red la primera vez):
-
-```toml
-# agregar a cardano/aiken.toml
-[[dependencies]]
-name = "aiken-lang/fuzz"
-version = "v2.2.0"
-source = "github"
-```
-
-```bash
-cd cardano && aiken check    # ahora descarga fuzz y corre los property tests
-```
-
-Si querés que la imagen ya lo traiga completa y offline, agregá esa dependencia **antes** de
-construir: el `aiken check` del build la descarga y la deja cacheada.
+Los property tests (Clases 8 y 9) usan `aiken-lang/fuzz` v2.2.0, que **ya está declarada** en
+`cardano/aiken.toml`. El `aiken check` del build la descarga y la deja cacheada en la imagen. Con
+una imagen construida antes de ese cambio, el primer `aiken check` la baja (requiere red una vez).
+No instalar la v3.0.0: pide Aiken 1.1.24 y stdlib v4, y con el Aiken 1.1.21 de la imagen no
+compila.
 
 ---
 
@@ -321,16 +308,17 @@ podman run --rm curso-sc:arm64 bash -lc '
   which forge aiken slither marp
   cd /curso/ethereum && forge test --no-match-contract AlcanciaTest | tail -1
   forge test | tail -1
-  cd /curso/cardano && aiken check -m claim -m cancel 2>&1 | grep -oE "\"passed\": [0-9]+"
+  cd /curso/cardano && aiken check -m claim -m cancel -m v2_ 2>&1 | grep -oE "\"passed\": [0-9]+" | head -1
 '
 ```
 
-Salida esperada (**verificada en `arm64`** el 2026-09-24, forge 1.7.1):
+Salida esperada (las dos de forge **verificadas en `arm64`** el 2026-09-24, forge 1.7.1; la de
+aiken, en la Mac el 2026-10-02 con el material de la Clase 9):
 
 ```text
 Ran 4 test suites: 12 tests passed, 0 failed, 2 skipped (14 total tests)
 Ran 5 test suites: 13 tests passed, 4 failed, 2 skipped (19 total tests)
-"passed": 7
+"passed": 14
 ```
 
 Cómo leer esos tres números:
@@ -339,18 +327,19 @@ Cómo leer esos tres números:
 |---|---|
 | `forge test --no-match-contract AlcanciaTest` | **la línea base**: 11 de `Vault.t.sol` + el invariante de `VaultVulnerable.t.sol` = **12 passed**, y **2 skipped** (los PoCs del taller de la Clase 7). |
 | `forge test` | todo, incluida la actividad de la Clase 3: 12 + el test modelo de `Alcancia` = **13 passed**, **4 failed** y **2 skipped**. |
-| `aiken check -m claim -m cancel` | **la línea base de Cardano**: los **7** tests de `escrow.ak`. Tiene que dar **7 / 0**. |
-| `aiken check` | todo, incluido el taller de la Clase 5: 7 passed y **5 failed** (`vesting.ak`). |
+| `aiken check -m claim -m cancel -m v2_` | **la línea base de Cardano**: los 7 de `escrow.ak`, los 2 `vuln_claim_*` de `escrow_vulnerable.ak` y los 5 `v2_*` de `vesting_vulnerable.ak`. Tiene que dar **14 / 0**. |
+| `aiken check` | todo, incluidos los talleres: **15 passed** y **9 failed** (los 5 `unlock_*` de `vesting.ak`, Clase 5, y los 4 `poc_*`/`prop_*` de `vesting_vulnerable.ak`, Clase 9). |
 
 > **Los que fallan son correctos:** son las consignas que el alumno completa y arrancan en rojo
-> a propósito — los 4 de la **actividad de la Clase 3** (`test/Alcancia.t.sol`) y los 5
+> a propósito — los 4 de la **actividad de la Clase 3** (`test/Alcancia.t.sol`), los 5
 > `unlock_*` del **taller de la Clase 5** (`cardano/validators/vesting.ak`, con `can_unlock`
-> sin implementar).
+> sin implementar) y los 4 `poc_*`/`prop_*` del **taller de la Clase 9**
+> (`cardano/validators/vesting_vulnerable.ak`, son `todo`).
 >
 > Por eso el build de la imagen filtra en los dos lados (`--no-match-contract AlcanciaTest` y
-> `-m claim -m cancel`). Ojo con el filtro de aiken: no tiene flag de exclusión, y `-m escrow`
-> **no matchea nada** — corre 0 tests y sale 0, o sea que pasaría sin validar nada. `-m` matchea
-> nombres de test.
+> `-m claim -m cancel -m v2_`). Ojo con el filtro de aiken: no tiene flag de exclusión, y
+> `-m escrow` **no matchea nada** — corre 0 tests y sale 0, o sea que pasaría sin validar nada.
+> `-m` matchea nombres de test, por substring.
 
 > Estos números **suben** cuando se agregue el material de las Clases 6 a 9
 > (ver `PROXIMAS-CLASES.md`). La imagen se valida sola: si `forge test` o `aiken check`

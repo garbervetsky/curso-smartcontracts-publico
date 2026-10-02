@@ -215,19 +215,21 @@ RUN cd /curso/ethereum \
 # `build` además regenera plutus.json (el blueprint), que es lo que consume el
 # off-chain de la Clase 4: así la imagen nunca queda con un blueprint viejo.
 #
-# Línea base: los 7 tests de escrow.ak (los `claim_*` y `cancel_*`). Sube cuando
-# se agreguen los validators de las Clases 8-9 (ver PROXIMAS-CLASES.md).
+# Línea base: 14 tests. Los 7 de escrow.ak (`claim_*` y `cancel_*`), los 2
+# `vuln_claim_*` de escrow_vulnerable.ak y los 5 `v2_*` de vesting_vulnerable.ak.
 #
 # Se filtra por nombre igual que el --no-match-contract AlcanciaTest de Ethereum,
-# y por el mismo motivo: `vesting.ak` es el TALLER de la Clase 5 (`can_unlock` sin
-# implementar) y sus 5 tests `unlock_*` arrancan en rojo a propósito. Un `aiken
-# check` pelado sale con exit 1 y el build de la imagen no termina.
+# y por el mismo motivo: lo que arranca en rojo a propósito es el material de los
+# talleres: los 5 `unlock_*` de vesting.ak (Clase 5, `can_unlock` sin implementar)
+# y los `poc_*` y `prop_*` de vesting_vulnerable.ak (Clase 9, son `todo`). Un
+# `aiken check` pelado sale con exit 1 y el build de la imagen no termina.
 #
 # OJO al filtrar: aiken no tiene flag de exclusión, y `-m escrow` (el módulo) NO
 # matchea nada — corre 0 tests y sale 0, o sea que pasaría sin validar nada. `-m`
-# matchea NOMBRES DE TEST, así que hay que nombrarlos como acá.
+# matchea NOMBRES DE TEST (por substring), así que hay que nombrarlos como acá.
+# Este `aiken check` además descarga `aiken-lang/fuzz` y lo deja cacheado.
 RUN cd /curso/cardano \
-    && aiken check -m claim -m cancel \
+    && aiken check -m claim -m cancel -m v2_ \
     && aiken build
 
 # --- Off-chain de Cardano (Mesh) — transacciones reales, Clase 4 -------------
