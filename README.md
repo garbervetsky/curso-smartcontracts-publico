@@ -188,6 +188,11 @@ aiken check -m poc_ -m prop_        # los PoCs y las propiedades: los escribís 
 
 La primera vez, `aiken check` baja `aiken-lang/fuzz` de GitHub; la imagen reconstruida ya lo trae.
 
+## Trabajo final
+
+El enunciado, el catálogo de pares de vulnerabilidades y las fuentes están en
+[`TRABAJO-FINAL.md`](TRABAJO-FINAL.md).
+
 ## Mantenerse al día
 
 Las slides y el material de las clases de análisis se van sumando. Antes de cada clase:
