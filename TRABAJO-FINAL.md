@@ -5,12 +5,12 @@ del catálogo de abajo: **una de Ethereum y una de Cardano**. El par lo asigna e
 
 **Entrega.** Tres cosas:
 
-1. Una **presentación de 12 minutos**, más 3 de preguntas.
-2. Un **documento breve** (2 a 3 páginas).
-3. Un **repo con código que compile y corra**: una carpeta `ethereum/` que pase `forge test` y una
+1. Un **documento breve** (2 a 3 páginas).
+2. Un **repo con código que compile y corra**: una carpeta `ethereum/` que pase `forge test` y una
    `cardano/` que pase `aiken check`. Pueden partir de una copia de este repo.
+3. Una **presentación de aprox 10 minutos**.
 
-**Fecha:** se confirma en clase.
+**Fecha:** Deadline 1/12. Posibles entrevistas a partir del 10/12.
 
 **Por qué un par y no una sola.** Las dos vulnerabilidades de cada par son **la misma idea de fondo
 en los dos modelos de ejecución**. Explicar las dos obliga a compararlas, y esa comparación es la
@@ -46,9 +46,9 @@ qué sacrifica, que la lectura de la herramienta sea honesta (un "no la detecta"
 más que un "la detecta" sin decir por qué), y **la comparación entre los dos modelos**, que es el
 punto del par.
 
-## Cómo organizar los 12 minutos
+## Cómo organizar los 10 minutos de presentación.
 
-Una sugerencia, no una obligación: 1 minuto para la idea común del par; 4 para cada vulnerabilidad
+Una sugerencia, no una obligación: 1 minuto para la idea común del par; 3 para cada vulnerabilidad
 (qué es, el ejemplo, el test corriendo, el fix y su costo, qué dijo la herramienta); 3 para la
 comparación: por qué la misma idea toma dos formas distintas. El código se muestra corriendo, no en
 capturas.
