@@ -218,6 +218,9 @@ cd ethereum && forge test -vv && anvil --host 0.0.0.0
 # Clase 4 — una transacción EUTXO, con el validator decidiendo
 ./scripts/demo-tx-cardano.sh
 
+# Clase 8 — el catálogo de bugs EUTXO, con los validators decidiendo (6 escenas)
+./scripts/demo-bugs-cardano.sh
+
 # Clase 5 — Cardano
 cd cardano && aiken check      # los tests del escrow
 aiken build                    # genera plutus.json

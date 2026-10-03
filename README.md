@@ -160,6 +160,9 @@ en los talleres. Ver **`PROXIMAS-CLASES.md`**.
 cd cardano/offchain && npm install && npm run demo    # …y transacciones de verdad
 ```
 
+Y para la Clase 8, con el mismo mecanismo: `./scripts/demo-bugs-cardano.sh`, el catálogo de bugs
+EUTXO (double satisfaction, tiempo, minting) con los validators decidiendo sobre cada transacción.
+
 ## Taller de análisis (Clase 7)
 
 Encontrar los bugs del `VaultVulnerable`, escribir el exploit y el fix, y verificarlos. Las

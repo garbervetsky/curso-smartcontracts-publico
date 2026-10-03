@@ -111,6 +111,7 @@ Hay dos demos, y hacen cosas distintas:
 
 ```bash
 ../scripts/demo-tx-cardano.sh    # ejecuta el validator sobre txs armadas a mano; sin red
+../scripts/demo-bugs-cardano.sh  # Clase 8: el catálogo de bugs EUTXO, mismo mecanismo; sin red
 ../scripts/devnet.sh up          # levanta un devnet local...
 cd offchain && npm install && npm run demo   # ...y le manda transacciones de verdad
 ```
