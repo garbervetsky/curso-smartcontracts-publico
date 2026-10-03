@@ -9,6 +9,22 @@ El validator a auditar es `validators/vesting_vulnerable.ak`: el vesting de la C
 satisfaction. Lo que dice que hace está en el comentario de arriba del archivo. Hace dos cosas
 mal.
 
+Los comandos que van a usar (no existe `aiken test`: es `aiken check`):
+
+```bash
+cd cardano/
+aiken check -m v2_                        # lo que viene hecho: 5 tests, en verde
+aiken check -m poc_                       # consigna 2: los dos PoCs (arrancan en rojo)
+aiken check -m prop_                      # consigna 3: las propiedades (contra éste, tienen que fallar)
+aiken check -m prop_ --seed=<n>           # reproducir la corrida que imprimió ese seed
+aiken check -m prop_ --max-success 1000   # mil corridas en vez de cien
+aiken check -m "mi_vesting_fixed.{..}"    # consigna 5: todo el módulo de su fix
+aiken check -e -m "vesting_vulnerable.{poc_cualquiera_se_lleva_los_fondos}"   # un test exacto
+```
+
+`-m` filtra por substring del nombre del test; `"módulo.{..}"` corre un módulo entero; `-e` exige
+el nombre exacto.
+
 1. **Checklist y triage.** Aplicar el checklist de la Clase 8 a `vesting_vulnerable.ak`, ítem por
    ítem, ✅/❌ con una frase que lo justifique. Dos ❌ son bugs. Para cada ✅ que puedan, citar el
    test `v2_*` que lo demuestra (y si no hay test, escribirlo). Una pregunta guía: ¿qué campo del
